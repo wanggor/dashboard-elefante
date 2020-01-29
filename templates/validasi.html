@@ -1,0 +1,378 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'dependencies/datatables.net-bs/css/dataTables.bootstrap.css'%}" />
+<link rel="stylesheet" href="{% static 'css/table_custom.css'%}" />
+{% endblock %}
+
+{% block content %}
+
+{% if user.is_superuser %}
+    <div style="min-height: 500px;" id= "container">
+
+        <!-- <div class="stats-title pull-right" style="margin-bottom: 20px;">
+            <button class="btn btn-danger " type="button"><i class="fa fa-trash"></i> <span class="bold">Clear All Data</span></button>
+        </div> -->
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="specpanel">
+                    <div class="panel-body text-right" style="padding: 0%; background-color: transparent; border: none;">
+                        <button class="btn btn-danger " type="button" id="delete-all-button"><i class="fa fa-trash"></i> <span class="bold">Clear All Data</span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+
+    </div>
+
+
+{% endif %}
+
+
+{% endblock %}
+
+{% block js %}
+    <!-- DataTables -->
+    <script src="{% static 'dependencies/datatables/media/js/jquery.dataTables.js'%}"></script>
+    <script src="{% static 'dependencies/datatables.net-bs/js/dataTables.bootstrap.js'%}"></script>
+
+    <!-- DataTables buttons scripts -->
+    <script src="{% static 'dependencies/pdfmake/build/pdfmake.js'%}"></script>
+    <script src="{% static 'dependencies/pdfmake/build/vfs_fonts.js'%}"></script>
+    <script src="{% static 'dependencies/datatables.net-buttons/js/buttons.html5.js'%}"></script>
+    <script src="{% static 'dependencies/datatables.net-buttons/js/buttons.print.js'%}"></script>
+    <script src="{% static 'dependencies/datatables.net-buttons/js/dataTables.buttons.js'%}"></script>
+    <script src="{% static 'dependencies/datatables.net-buttons-bs/js/buttons.bootstrap.js'%}"></script>
+
+
+    <script src="{% static 'js/sweetalert2.all.min.js' %}"></script>
+
+    <script>
+        const Toast = Swal.mixin({
+            toast: false,
+            position: 'center',
+            showConfirmButton: false,
+            timer: 2000,
+
+            })
+
+
+        function formatNumber(num) {
+                            return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+                        } 
+
+        var data = {{ data | safe  }};
+        var data_table_list = [];
+
+        var n = 0;
+        if (data.length != 0){
+            for (var key in data) {
+                $("#container").append('<div class="row"><div class="col-lg-12"><div class="specpanel collapsed title-panel" value="'+key+'"><div class="panel-heading hbuilt showhide" style="cursor : pointer"><div class="panel-tools"><a class=""><i class="fa fa-chevron-up"></i></a></div>'+key+'</div><div class="panel-body" style="min-height: 400px; padding: 0px 0px 0px 0px"><ul class="nav nav-tabs nav-justified" id = "my-nav-'+n+'"></ul><div class="tab-content"></div></div><div class="panel-footer "><small>'+data[key].last_update+'</small><div class= "panel-tools text-right"><button class="btn btn-link delete-button" type="button" style="padding-top : 0px; color: red"><i class="fa fa-times" ></i> <span class="550">Delete</span></button><button class="btn btn-link validate-button" type="button" style="padding-top : 0px"><i class="fa fa-check"></i> <span class="550">Validate</span></button></div></div></div></div></div>')
+                for (var mat in data[key]){
+                    if (mat != "last_update"){
+                        $(".nav-tabs").last().append('<li class="nav-item tab-item-custom" style="white-space: nowrap; font-size: 10px"><a data-toggle="tab" href="#tab-'+n+'" value = "'+n+'">'+mat+'</a></li>')
+                        $(".tab-content").last().append(
+                            '<div id="tab-'+n+'" class="tab-pane"><div class="panel-body"><h4 class="text-center" style="margin:0px">'+mat+'</h4>'+data[key][mat].table+'</div></div>'
+                        )
+                        var table_data = $(data[key][mat].id).DataTable( {
+                                    data: data[key][mat].value,
+                                    orderCellsTop: true,
+                                    fixedHeader: false,
+                                    scroller: true,
+                                    scrollX: true,
+                                    responsive: true,
+                                    columns: data[key][mat].columns,
+                                    paging:   false,
+                                    // autoWidth: false,
+                                    ordering: false,
+                                    //info:     false,
+                                    searching : false,
+                                    columnDefs: [ {
+                                                        targets: [0],
+                                                        createdCell: function (td, cellData, rowData, row, col) {
+
+                                                            if (row == 0){
+                                                          
+                                                                $('thead').css({"cursor": "pointer","text-align" : "center"});
+                                                                
+                                                            }
+                                                            if ( ['Saldo Awal',"Sisa Administrasi", 'Pemakaian', 'Kedatangan','Persediaan administrasi', "Total Administrasi","Stock Opname","Stock Fisik"].includes(cellData) ||  $(td).has("div").length >0 ) {
+                                                                
+                                                                if ($(td).has("div").length >0){
+                                                                    if ($(td).find("div").text() == ""){
+                                                                        $(td).css({ "font-weight": "550"});
+                                                                    }else{
+                                                                        $(td).css({"padding-left": "2%", "font-weight": "550"});
+                                                                    }
+
+                                                                    
+                                                                    $(td).css({"cursor": "pointer"});
+                                                                    $(td).click(function(event){
+                                                                        
+                                                                        var list_index = $(this).find("div").attr('value');
+                                                                        list_index = list_index.replace(/'/g, '"');
+                                                                        list_index = JSON.parse(list_index);
+                                                                
+                                                                        var index = $( td ).closest("tr").index() +1 ;
+                                                                        if ($(td).find("div").text() == ""){
+                                                                            // alert($(td).find("div").attr("name"));
+                                                                            
+                                                                            if ($(td).find("div").attr("name") == ""){
+                                                                                $(td).find("div").attr("name", "show")
+                                                                            }else{
+                                                                                $(td).find("div").attr("name", "")
+                                                                            }
+                                                                        
+                                                                        }else{
+                                                                            if ($(td).find("div").text() == "+"){
+                                                                                $(td).find("div").text("-")
+                                                                            }else{
+                                                                                $(td).find("div").text("+")
+                                                                            }
+
+                                                                        }
+                                                                        
+                                                                    
+                                                                        $( td ).closest("tbody").find(">tr").slice( index, index+list_index.length ).each(function( index ) {
+                                                                            event.preventDefault();
+                                                                            // $( this ).toggle() ;
+                                                                            if ($(td).find("div").text() == ""){
+                                                                                var index = $( td ).closest("tr").index() +1 ;
+                                                                                if($(td).find("div").attr("name") == ""){
+                                                                                    
+                                                                                    $( this ).show() ;
+                                                                                }else{
+                                                                                    $( this ).hide() ;
+                                                                                }
+                                                                                
+                                                                            }else{
+
+                                                                                if($(this).is(":visible")){
+                                                                                    $( this ).hide() ;
+                                                                                    
+                                                                                } else{
+                                                                                    $( this ).show() ;
+                                                                                
+                                                                                }
+                                                                            }
+                                                                            // $(this).closest("td div").toggleText('Initial', 'Secondary');
+                                                                        });
+
+                                                                    });
+                                                                
+                                                                }else{
+                                                                    $(td).css({"font-weight": "550"});
+                                                                }
+                                                            }else{
+                    
+                                                                // console.log(cellData,"Jumlah Stock Fisik (Tonase)", $(td).text().normalize("NFKC") == "Jumlah Stock Fisik (Tonase)".normalize("NFKC"));
+                                                                
+                                                                if (["Jumlah Stock Fisik (Tonase)","Jumlah Stock Value",'Saldo Sebelumnya',"Produksi Sendiri", 'Jumlah Saldo Awal', 'Jumlah Kedatangan','Jumlah Pemakaian', "Jumlah Administrasi","Jumlah Saldo Tersisa"].includes(cellData)){
+                                                                    $(td).css({"padding-left": "2%"});
+
+                                                                }else{
+                                                                    $(td).css({"padding-left": "3%"});
+                                                                    $( td ).parent('tr').hide();
+                                                                }
+                                                                
+                                                                
+                                                            }
+
+                                                            if (["Jumlah"].includes(cellData.replace(/ .*/,''))){
+                                                                $(td).closest('tr').css({"font-weight": "550"});
+                                                                $(td).css({"font-weight": "normal", "padding-left": "2%"});
+                                                            }
+                                                            //$(td).css({"width" : "20px","word-wrap": "break-all"});
+                                                        }
+                                                    },
+                                                    {
+                                                        targets: '_all',
+                                                        createdCell: function (td, cellData, rowData, row, col) {
+                                                            if (row>0){
+                                                                // $(td).css({"text-align": "right", "min-width": "180px"});
+                                                                $(td).css({"text-align": "right", });
+                                                                
+                                                                if ($(td).text() == ""){
+
+                                                                }else{
+                                                                    $(td).text(formatNumber(parseFloat($(td).text()).toFixed(2)));
+                                                                }
+
+                                                            }else{
+                                                                // $(td).css({"text-align": "center", });
+                                                            }
+                                                            
+                                                            
+                                                        }
+                                                    }]
+                                } );
+                                data_table_list.push(table_data);
+                    n++;
+                    }
+
+                    
+                    
+                    
+                }
+
+                $(".nav-tabs").last().append('<li class="nav-item dropdown d-none" style ="font-size: 10px; text-align : right"><a class="nav-link dropdown-toggle" href="#" id="DropdownMenu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-diplay="static" style ="text-align: right"><i class="fa fa-caret-down" aria-hidden="true"></i></a><ul class="dropdown-menu p-2 dropdown-menu-right" aria-labelledby="DropdownMenu" ></ul></li>')
+                // console.log(data[key]);
+                
+            }
+        }
+        $('a[data-toggle="tab"]').on( 'shown.bs.tab', function (e) {
+            $.fn.dataTable.tables( {visible: false, api: true} ).columns.adjust();
+        } );
+    
+
+        $(".validate-button").on( 'click', function (e) {
+            var msg = $(this).closest(".title-panel").attr("value");
+            $.ajax({
+                type:'POST',
+                url:'/validate_data/',
+                data:{
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    "data" :msg,
+                },
+                success:function(json){
+                    Toast.fire({
+                    type: 'success',
+                    title: 'Success',
+                    
+                    });
+                    location.reload();
+                },
+                error : function(xhr,errmsg,err) {
+                Toast.fire({
+                    type: 'error',
+                    title: 'Fail',
+                    
+                    });
+                    location.reload();
+            }
+            });
+
+        });
+
+        $(".delete-button").on( 'click', function (e) {
+            var msg = $(this).closest(".title-panel").attr("value");
+
+            $.ajax({
+                type:'POST',
+                url:'/delete_val_data/',
+                data:{
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    "data" :msg,
+                },
+                success:function(json){
+                    Toast.fire({
+                    type: 'success',
+                    title: 'Success',
+                    
+                    });
+                    location.reload();
+                },
+                error : function(xhr,errmsg,err) {
+                Toast.fire({
+                    type: 'error',
+                    title: 'Fail',
+                    
+                    });
+                    location.reload();
+            }
+            });
+
+
+        } );
+
+        $("#delete-all-button").on( 'click', function (e) {
+
+            $.ajax({
+                        type:'POST',
+                        url:'/delete_val_data_all/',
+                        data:{
+                            'csrfmiddlewaretoken': '{{ csrf_token }}',
+                        },
+                        success:function(json){
+                            Toast.fire({
+                            type: 'success',
+                            title: 'Success',
+                            
+                            });
+                            location.reload();
+                        },
+                        error : function(xhr,errmsg,err) {
+                        Toast.fire({
+                            type: 'error',
+                            title: 'Fail',
+                            
+                            });
+                            location.reload();
+                    }
+                    });
+
+            });
+
+    </script>
+
+    <script>
+    var autocollapse = function (menu,maxHeight) {
+    
+    var nav = $(menu);
+    var navHeight = nav.innerHeight();
+    if (navHeight >= maxHeight) {
+        
+        $(menu + ' .dropdown').removeClass('d-none');
+        nav.closest(".navbar-nav").removeClass('w-auto').addClass("w-100");
+        
+        while (navHeight > maxHeight) {
+            //  add child to dropdown
+            var children = nav.children(menu + ' li:not(:last-child)');
+            var count = children.length;
+            $(children[count - 1]).prependTo(menu + ' .dropdown-menu');
+            navHeight = nav.innerHeight();
+        }
+        nav.closest(".navbar-nav").addClass("w-auto").removeClass('w-100');
+        
+    }
+    else {
+        
+        var collapsed = $(menu + ' .dropdown-menu').children(menu + ' li');
+      
+        if (collapsed.length===0) {
+          $(menu + ' .dropdown').addClass('d-none');
+        }
+      
+        while (navHeight < maxHeight && (nav.children(menu + ' li').length > 0) && collapsed.length > 0) {
+            //  remove child from dropdown
+            collapsed = $(menu + ' .dropdown-menu').children('li');
+            $(collapsed[0]).insertBefore(nav.children(menu + ' li:last-child'));
+            navHeight = nav.innerHeight();
+        }
+
+        if (navHeight > maxHeight) { 
+            autocollapse(menu,maxHeight);
+        }
+        
+    }
+};
+
+
+
+$(document).ready(function () {
+    $(".nav-tabs").each(function () {
+        var id = "#"+$(this).attr("id");
+        autocollapse(id,50);
+        $(window).on('resize', function () {
+            autocollapse(id,50); 
+        }); 
+    });
+});
+
+
+
+    </script>
+
+{% endblock %}

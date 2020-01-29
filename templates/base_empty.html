@@ -1,0 +1,61 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="author" content="Mosaddek" />
+    <meta name="keyword" content="flat, dashboard, bootstrap, admin, template, theme, responsive, fluid, retina" />
+    <meta name="description" content="" />
+    <!-- <link rel="shortcut icon" href="javascript:;" type="image/png"> -->
+    <link rel="shortcut icon" href="">
+
+    <title>Spec - Responsive Bootstrap Admin</title>
+
+    <!-- dependencies styles -->
+    <link rel="stylesheet" href="{% static 'dependencies/fontawesome/css/font-awesome.css'%}" />
+    <link rel="stylesheet" href="{% static 'dependencies/metisMenu/dist/metisMenu.css'%}" />
+    <link rel="stylesheet" href="{% static 'dependencies/animate.css/animate.css'%}" />
+    <link rel="stylesheet" href="{% static 'dependencies/bootstrap/dist/css/bootstrap.css'%}" />
+    <link rel="stylesheet" href="{% static 'dependencies/datatables.net-bs/css/dataTables.bootstrap.css'%}" />
+
+    
+    <!-- spec styles -->
+    <link rel="stylesheet" href="{% static 'fonts/pe-icon-7-stroke/css/pe-icon-7-stroke.css'%}" />
+    <link rel="stylesheet" href="{% static 'fonts/pe-icon-7-stroke/css/helper.css'%}" />
+    <link href="{% static 'offcanvascss/style-light.css'%}" rel="stylesheet">
+    <link href="{% static 'offcanvascss/style-responsive.css'%}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css'%}">
+
+    {% block css %}
+    {% endblock %}
+
+</head>
+
+<body class="sticky-header">
+
+
+    {% block content %}
+    {% endblock %}
+
+
+
+<!-- dependencies scripts -->
+<script src="{% static 'dependencies/jquery/dist/jquery.js'%}"></script>
+<script src="{% static 'dependencies/jquery-ui/jquery-ui.js'%}"></script>
+<script src="{% static 'dependencies/slimScroll/jquery.slimscroll.js'%}"></script>
+<script src="{% static 'dependencies/bootstrap/dist/js/bootstrap.js'%}"></script>
+<script src="{% static 'dependencies/metisMenu/dist/metisMenu.js'%}"></script>
+<script src="{% static 'dependencies/iCheck/icheck.js'%}"></script>
+
+<!--Spec Scripts -->
+<script src="{% static 'offcanvasjs/offcanvas.js'%}"></script>
+<script src="{% static 'js/spec.js'%}"></script>
+
+
+{% block js %}
+{% endblock %}
+
+
+
+</body>
+</html>

@@ -1,0 +1,49 @@
+{% extends 'base_empty.html' %}
+{% load static %}
+
+{% block css %}
+
+
+{% endblock %}
+
+{% block content %}
+
+<div class="back-link">
+    <a href="/" class="btn btn-primary">Back to Dashboard</a>
+</div>
+
+<div class="login-container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="text-center m-b-md">
+                <h3>LOGIN TO SAP-PETRO</h3>
+                <small>Sistem Manajemen Bahan Baku</small>
+            </div>
+            <div class="specpanel">
+                
+                        <div class="login-page">
+                        <div class="form">
+
+
+                            <form class="login-form" method="post" novalidate>
+                                {% csrf_token %}
+                                {% include 'includes/form.html' %}
+                                <button type="submit" >Log in</button>
+                                <p class="message">Lupa Password? <a href="/reset_password/">Reset Password</a></p>
+                            </form>
+                        </div>
+                    </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 text-center">
+             2015 Copyright Company CodeDirect
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+{% endblock %}

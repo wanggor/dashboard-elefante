@@ -1,0 +1,254 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="author" content="Mosaddek" />
+    <meta name="keyword" content="flat, dashboard, bootstrap, admin, template, theme, responsive, fluid, retina" />
+    <meta name="description" content="" />
+    <!-- <link rel="shortcut icon" href="javascript:;" type="image/png"> -->
+    <link rel="shortcut icon" href="">
+
+    <title>Spec - Responsive Bootstrap Admin</title>
+
+    <!-- dependencies styles -->
+    <link rel="stylesheet" href="{% static 'dependencies/fontawesome/css/font-awesome.css'%}" />
+    <link rel="stylesheet" href="{% static 'dependencies/metisMenu/dist/metisMenu.css'%}" />
+    <link rel="stylesheet" href="{% static 'dependencies/animate.css/animate.css'%}" />
+    <link rel="stylesheet" href="{% static 'dependencies/bootstrap/dist/css/bootstrap.css'%}" />
+    <link rel="stylesheet" href="{% static 'dependencies/datatables.net-bs/css/dataTables.bootstrap.css'%}" />
+
+    
+    <!-- spec styles -->
+    <link rel="stylesheet" href="{% static 'fonts/pe-icon-7-stroke/css/pe-icon-7-stroke.css'%}" />
+    <link rel="stylesheet" href="{% static 'fonts/pe-icon-7-stroke/css/helper.css'%}" />
+    <link href="{% static 'offcanvascss/style-light.css'%}" rel="stylesheet">
+    <link href="{% static 'offcanvascss/style-responsive.css'%}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css'%}">
+
+    {% block css %}
+    {% endblock %}
+
+</head>
+
+<body class="sticky-header">
+
+    <section>
+        <!-- sidebar left start-->
+        <div class="sidebar-left color-light-sidebar">
+            <!--responsive view logo start-->
+            <div class="logo  visible-xs-* visible-sm-*">
+                <a href="">
+                    <!--<i class="fa fa-maxcdn"></i>-->
+                    <img src="{% static 'images/logo-petro.png'%}" class="img-circle " style="width: 40px;height: 40px;" >
+                    <span class="brand-name" style="font-weight:bold"> SAP PETRO</span>
+                </a>
+            </div>
+
+            <div class="sidebar-left-info light-color">
+                <ul class="nav nav-pills nav-stacked side-navigation">
+                    <li>
+                        <a href="/"><i class="fa fa-home"></i> <span>Dashboard</span></a>
+                    </li>
+                    {% if user.is_superuser %}
+                    <li>
+                        <a href="/notulensi/"><i class="fa fa-bookmark"></i> <span>Notulensi</span></a>
+                    </li>
+                    {% endif %}
+                    <li class="menu-list">
+                        <a href="#"><i class="fa fa-book"></i>  <span>Laporan</span></a>
+                        <ul class="child-list" id="list-tahun">
+                        </ul>
+                    </li>
+                    {% if user.is_authenticated %}
+                    <li>
+                        <a href="/upload/"><i class="fa fa-upload"></i> <span>Upload File</span></a>
+                    </li>
+                    {% endif %}
+
+                    {% if user.is_superuser %}
+                    <li><a href="/validasi/"><i class="fa fa-check"></i> <span>Validasi Data <span class="badge noti-arrow bg-success pull-right" id="val-c"></span></span></a></li>
+                    <li>
+                        <a href="/register/"><i class="fa fa-user-plus"></i> <span>Buat Akun</span></a>
+                    </li>
+                    <li class="menu-list">
+                        <a href="#"><i class="fa fa-gear"></i>  <span>Pengaturan</span></a>
+                        <ul class="child-list">
+                            <li><a href="/saldo_awal/"><i class="fa fa-list"></i>Saldo Awal</a></li>
+                            <li><a href="/daftar_plan/"><i class="fa fa-list"></i>Daftar Plan</a></li>
+                            <li><a href="/daftar_material/"><i class="fa fa-list"></i>Daftar Material</a></li>
+                            <li><a href="/daftar_mvt/"><i class="fa fa-list"></i>Movement Type</a></li>
+                            <li><a href="/delete_data/"><i class="fa fa-trash"></i> Delete Data</a></li>
+                        </ul>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+        <!-- sidebar left end-->
+
+        <!-- body content start-->
+        <div class="body-content" >
+            <!-- header section start-->
+            <div class="header-section">
+                <!--logo and logo icon start-->
+                <div class="logo  hidden-xs hidden-sm" >
+                    <a href="/" >
+                        <!--<i class="fa fa-maxcdn"></i>-->
+                        <img src="{% static 'images/logo-petro.png'%}" class="img-circle " style="width: 40px;height: 40px;" >
+                        <span class="brand-name" style="font-weight:bold"> SAP PETRO</span>
+                    </a>
+                </div>
+                <div class="icon-logo  hidden-xs hidden-sm">
+                    <a href="/">
+                        <img src="{% static 'images/logo-petro.png'%}" class="img-circle " style="width: 40px;height: 40px;" >
+                        <!--<i class="fa fa-maxcdn"></i>-->
+                    </a>
+                </div>
+                <!--logo and logo icon end-->
+                <!--toggle button start-->
+                <a class="toggle-btn"><i class="fa fa-server"></i></a>
+                <!--toggle button end-->
+
+                <div class="notification-wrap">
+                    <!--right notification start-->
+                    <div class="right-notification">
+
+                        <div class="navbar-right">
+                            <ul class="nav navbar-nav no-borders">
+                                <li class="dropdown">
+                                    <a href="#" id="sidebar" class="right-sidebar-toggle">
+                                        <i class="glyphicon glyphicon-option-vertical" style="color:#777;"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                </div>
+                <!--right notification end-->
+                </div>
+
+            </div>
+
+            <div id="wrapper">
+
+                <div class="content">
+
+                {% block content %}
+                {% endblock %}
+
+                
+                </div>
+
+
+                <!-- Right sidebar -->
+                <div id="right-sidebar" class="animated fadeInRight right-sidebar">
+                            <!--ASIDE-->
+                        <!--===================================================-->
+                        <aside id="aside-container">
+                            <div id="aside">
+                                <div class="nano">
+                                    <div class="nano-content">
+                                        <div class="profile-picture">
+                                            {% if user.is_authenticated %}
+                                                <a href="/edit_profile/">
+                                                    <img src="{% static 'images/user.png' %}" class="img-circle m-b" style="width: 80px;height: 80px;" alt="logo">
+                                                </a>
+                                            {% else %}
+                                                <a href="">
+                                                    <img src="{% static 'images/user.png' %}" class="img-circle m-b" style="width: 80px;height: 80px;" alt="logo">
+                                                </a>
+                                            {% endif %}
+                    
+                                            <div class="stats-label text-color">
+                                                {% if user.is_authenticated %}
+                                                    {% if user.is_superuser %}
+                                                    <span class="font-extra-bold font-uppercase">{{ user.username |capfirst}} (Admin)</span>
+                                                    {% else %}
+                                                    <span class="font-extra-bold font-uppercase">{{ user.username |capfirst}}</span>
+                                                    {% endif %}
+                                                    <hr>
+                                                    <div><a href="/password_change/">Change Password</a></div>
+                                                    <hr>
+                                                    <div><a href="/logout/">Logout</a></div>
+                                                {% else %}
+                                                <span class="font-extra-bold font-uppercase">Guest</span>
+                                                    <hr>
+                                                    <div><a href="/login/">Log in</a></div>
+                                                {% endif %}
+                                            </div>
+                                        </div> 
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                        <!--===================================================-->
+                        <!--END ASIDE-->
+                </div>
+            </div>
+    <!-- Footer-->
+    <footer class="footer">
+        <span class="pull-left">
+        CodeDirect 2015-2020
+        </span>
+    </footer>
+        </div>
+        <!-- body content end-->
+    </section>
+
+
+
+<!-- dependencies scripts -->
+<script src="{% static 'dependencies/jquery/dist/jquery.js'%}"></script>
+<script src="{% static 'dependencies/jquery-ui/jquery-ui.js'%}"></script>
+<script src="{% static 'dependencies/slimScroll/jquery.slimscroll.js'%}"></script>
+<script src="{% static 'dependencies/bootstrap/dist/js/bootstrap.js'%}"></script>
+<script src="{% static 'dependencies/metisMenu/dist/metisMenu.js'%}"></script>
+<script src="{% static 'dependencies/iCheck/icheck.js'%}"></script>
+
+<!--Spec Scripts -->
+<script src="{% static 'offcanvasjs/offcanvas.js'%}"></script>
+<script src="{% static 'js/spec.js'%}"></script>
+
+<script>
+    $(document).on('click', '.dropdown-menu', function (e) {
+    e.stopPropagation();
+    });
+</script>
+
+
+<script >
+    $.ajax({
+            type:'POST',
+            url:'/home_data/',
+            data:{
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+            },
+            success:function(json){
+                var obj = JSON.parse(json);
+                var tahun = obj.tahun_report;
+                var valid_c = obj.valid_count;
+   
+                $("#val-c").html(valid_c);
+                
+                for (var i = 0; i < tahun.length; i++) {
+                    $("#list-tahun").append(
+                        '<li><a href="/report/'+tahun[i]+'/">'+tahun[i]+'</a></li>'
+                    )
+                    }
+
+            },
+            error : function(xhr,errmsg,err) {
+            
+        }
+        });
+
+</script>
+
+
+{% block js %}
+{% endblock %}
+
+
+
+</body>
+</html>

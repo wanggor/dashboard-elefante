@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block css %}
+<link href="{% static 'dependencies/dropzone/css/dropzone.css' %}" rel="stylesheet" type="text/css">
+<script src="{% static 'dependencies/dropzone/js/dropzone.js' %}" type="text/javascript"></script>
+<link rel="stylesheet" href="{% static 'css/custom_style.css'%}">
+<link rel="stylesheet" href="{% static 'dependencies/datatables.net-bs/css/dataTables.bootstrap.css'%}" />
+
+<link rel="stylesheet" href="{% static 'css/table_custom.css'%}" />
+
+{% endblock %}
+
+{% block content %}
+{% if user.is_superuser %}
+<div class="row">
+    <div class="col-lg-12" style="min-height: 500px;">
+        <div class="specpanel">
+            <div class="panel-heading hbuilt text-center">
+                Saldo Awal
+            </div>
+            <div class="panel-body" style="min-height: 400px;">
+                <table id="datatable" class="table  table-hover" width="100%">
+                </table>
+            </div>
+            <div class="panel-footer text-right">
+                <button class="btn btn-success "  data-toggle="modal" data-target="#preview_modal" type="button"><i class="fa fa-upload"></i> <span class="bold">Upload</span></button>
+                        <div class="modal fade" id="preview_modal" tabindex="-1" role="dialog"  aria-hidden="true">
+                            <div class="modal-dialog modal-lg" style="width: 80%;">
+                                <div class="modal-content">
+                                    <div class="modal-header text-center" style="height:10px; padding-bottom: 50px; padding-top: 0px">
+                                        <h3 class="font-bold" style="color: #888;">Upload Data <small >(Data Saldo Awal.xlsx)</small> </h3>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form action="/upload/" class="dropzone" id="myAwesomeDropzone" method="post" style="height: 350px; background-color: white;border: 2px dashed #888;padding: 100px; ">
+                                            {% csrf_token %}
+                                          <div class="dz-message" style="text-align:center" data-dz-message><span> Drop files here or click to upload</span></div>
+                                        </form>                                        
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal" id="buttonCancel">Cancel</button>
+                                        <button type="button" class="btn btn-primary disabled" id="buttonSubmit"><i class="fa fa-upload"></i> Submit</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endif %}
+
+{% endblock %}
+
+{% block js %}
+<!-- DataTables -->
+<script src="{% static 'dependencies/datatables/media/js/jquery.dataTables.js'%}"></script>
+<script src="{% static 'dependencies/datatables.net-bs/js/dataTables.bootstrap.js'%}"></script>
+
+<!-- DataTables buttons scripts -->
+<script src="{% static 'dependencies/pdfmake/build/pdfmake.js'%}"></script>
+<script src="{% static 'dependencies/pdfmake/build/vfs_fonts.js'%}"></script>
+<script src="{% static 'dependencies/datatables.net-buttons/js/buttons.html5.js'%}"></script>
+<script src="{% static 'dependencies/datatables.net-buttons/js/buttons.print.js'%}"></script>
+<script src="{% static 'dependencies/datatables.net-buttons/js/dataTables.buttons.js'%}"></script>
+<script src="{% static 'dependencies/datatables.net-buttons-bs/js/buttons.bootstrap.js'%}"></script>
+
+<script src="{% static 'dependencies/datatable-excel/buttons.flash.min.js'%}"></script>
+<script src="{% static 'dependencies/datatable-excel/jszip.min.js'%}"></script>
+
+<!-- swwt alert -->
+<script src="{% static 'js/sweetalert2.all.min.js' %}"></script>
+
+<script>
+
+    var data = {{ value | safe  }};
+    var header = {{ header | safe  }};
+    
+
+    if (data.length != 0){
+        var table = $('#datatable').dataTable( {
+            data: data,
+            columns:  header,
+            "scrollX": true,
+            dom: "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>tp",
+            buttons: [
+                {extend: 'excelHtml5',title: 'ExampleFile',filename:"Data Saldo Awal",exportOptions: {
+                                        columns: ':visible'
+                                    }, className: 'btn-sm'},
+
+            ]
+        });
+    }
+
+</script>
+
+
+
+<script>
+    var file_name = ["DATA SALDO AWAL"];
+    var url_post = "/upload_saldo/"
+
+    const Toast = Swal.mixin({
+        toast: false,
+        position: 'center',
+        showConfirmButton: false,
+        timer: 2000,
+
+        })
+
+    Dropzone.options.myAwesomeDropzone = {
+        autoProcessQueue: false,
+        dictResponseError: 'Server not Configured',
+        acceptedFiles: ".xlsx",
+        paramName: 'file',
+        dictDefaultMessage: 'Upload your files here',
+        maxFiles:1,
+        thumbnailMethod : 'contain',
+        timeout:900000,
+        uploadMultiple: true,
+        parallelUploads: 1,
+        init: function () {
+            var myDropzone = this;
+            myDropzone.options.addRemoveLinks = true;
+            myDropzone.options.dictRemoveFile = "Delete File";
+
+            myDropzone.on("maxfilesexceeded", function (file) {
+                this.removeAllFiles();
+                    });
+
+            myDropzone.on("error", function (file) {
+                        Toast.fire({
+                            type: 'error',
+                            title: 'Fail',
+                            
+                            })
+                        this.removeAllFiles();
+                        $('#buttonSubmit').addClass('disabled');
+                        $('#buttonSubmit').html('<i class="fa fa-upload"></i> Submit');
+                    });
+            
+            myDropzone.on("removedfile", function (file) {
+                if (myDropzone.getAcceptedFiles().length == 1){
+                    $('#buttonSubmit').removeClass('disabled');
+                }else{
+                    $('#buttonSubmit').addClass('disabled');
+                }
+                
+            });
+            myDropzone.on('addedfile', function(file) {
+
+                    var name = file.name.split('.')[0];
+
+                    if(file_name.includes(name.toUpperCase())) {
+                        
+                        $(file.previewElement).find(".dz-image img").attr("src", "{% static 'images/excel-logo.png' %}");
+                        $(file.previewElement).find(".dz-image img").css({"width" : "100%", "height" : "100%"});
+                        
+                        $('#buttonSubmit').removeClass('disabled');
+
+                    } else {
+                        myDropzone.removeFile(file);
+                        
+                    }
+
+                });
+                    
+            $("#buttonSubmit").click(function (e) {
+                myDropzone.options.url=  url_post;
+                e.preventDefault();
+                if ($(this).hasClass("disabled")){
+                    
+                }else{
+                    $(this).html('<i class="fa fa-refresh fa-spin"></i> Upload');
+                    $('#buttonSubmit').addClass('disabled');
+                    myDropzone.options.clickable=  'false';
+                    myDropzone.processQueue();
+                }
+                
+            });
+
+            myDropzone.on('sending', function(file, xhr, formData) {
+                
+                var data = $('#myAwesomeDropzone').serializeArray();
+                
+                $.each(data, function(key, el) {
+                    formData.append(el.name, el.value);
+                });
+            });
+
+            myDropzone.on("complete", function(file) {
+                
+                
+                });
+
+            myDropzone.on("queuecomplete", function (file) {
+                
+            
+            });
+            
+            myDropzone.on("successmultiple", function (file, respons) {
+                myDropzone.removeAllFiles();
+
+                $('#preview_modal').modal('hide');
+                Toast.fire({
+                                type: 'success',
+                                title: 'Success',
+                                
+                                });
+                $('#buttonSubmit').removeClass('disabled');
+                $('#buttonSubmit').html('<i class="fa fa-upload"></i> Submit');
+
+                location.reload(true);
+            });
+
+            
+            
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,46 @@
+
+.dropzone {
+    background: white;
+    border-radius: 5px;
+    border-image: none;
+    width: 100%;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    }
+    
+    .dropzone-div {
+    border: 2px dashed #888;
+    width: 70%;
+    margin: auto;
+    }
+    
+    .dropzone:hover {
+    cursor: pointer;
+    }
+    
+    .dropzone .dz-preview .dz-image {
+    
+    }
+    
+    .dz-image{
+    background-color: #022140;
+    border: 1px solid #888;
+    }
+    
+    
+    .customButton  {
+    background-color: #022140;
+    color: white;   
+    }
+    
+    .dropzone .dz-preview .dz-details .dz-filename span, .dropzone .dz-preview .dz-details .dz-size span {
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 0 0.4em;
+    border-radius: 3px;
+    border-color:  #022140;
+    border-width: 7px;
+    }
+    
+    .dz-error-mark svg{
+    }
