@@ -304,6 +304,7 @@ def process_data_excell(pandas_file, request):
     data_dept = []
     data_mont = []
     data_tgl  = [data_tanggal(tahun = i["Tahun"],
+                    bulan = int(float(bln)),
                     posting_date = i["Posting Date"],
                     material = i["Material"],
                     kategori = i["Kategori"],
@@ -498,10 +499,6 @@ def spit_data_into_departemen(data, tahun, bulan, mat):
     idx[-2], idx[-4] = idx[-4], idx[-2]
     idx[-1], idx[-5] = idx[-5], idx[-1]
     a = a.reindex(idx).reset_index().iloc[:,1:]
-    # # a.loc[len(a)] = ["Selisih","Selisih sd Bulan Ini"] + (a.iloc[-4,2:].values - a.iloc[-2,2:].values).tolist()
-    # # a.loc[:,'Total'] = a.iloc[:,2:].sum(axis=1)
-    # if "0" in a.columns:
-    #     a = a.drop(["0"], axis = 1)
     return a
 
 
@@ -669,7 +666,7 @@ def validate(data):
     data_tahun_unit.objects.filter(tahun = int(tahun)).filter(bulan = int(bulan)).filter(valid=False).filter(confirm=True).update(valid=True)
     data_tanggal.objects.filter(posting_date__range=[start, new_end]).filter(valid=False).filter(confirm=True).update(valid=True)
 
-
+    reset(int(tahun))
 
 def delete_data_validate(data):
     abbr_to_num = {name:num for num, name in enumerate(calendar.month_abbr) if num}
@@ -715,56 +712,151 @@ def cancel_data_upload(request):
 
 def get_data_report(tahun):
     data ={}
-    bln = sorted([i["bulan"] for i in list(data_bulan_unit.objects.filter(valid=True).filter(confirm=True).filter(tahun = int(tahun)).values("bulan").distinct())])
     material = sorted([i["material"] for i in list(data_bulan_unit.objects.filter(valid=True).filter(confirm=True).filter(tahun = int(tahun)).values("material").distinct())])
     
-    data_month = {}
-    for i in bln:
-        bulan = i
-        data_unit = list(data_bulan_unit.objects.filter(valid=True).filter(confirm=True).filter(tahun = int(tahun)).filter(bulan = bulan).values("data"))[0]["data"]
-        data_mont = list(data_tahun_unit.objects.filter(valid=True).filter(confirm=True).filter(tahun = int(tahun)).filter(bulan = bulan).values("data"))[0]["data"]
+    for k,mat in enumerate(material):
+        data[mat] = {}
+        data[mat]["tahun"] = {}
+        data[mat]["bulan"] = {}
+        bln = sorted([i["bulan"] for i in list(data_bulan_unit.objects.filter(valid=True).filter(confirm=True).filter(tahun = int(tahun)).filter(material = mat).values("bulan").distinct())])
+        for bulan in bln:
+            data_unit = list(data_bulan_unit.objects.filter(valid=True).filter(confirm=True).filter(tahun = int(tahun)).filter(bulan = bulan).filter(material = mat).values("data"))[0]["data"]
+ 
+            data_unit = pd.read_csv(StringIO(data_unit))
+            data_unit = data_unit.drop("Unnamed: 0", axis = 1)
+            data_unit = data_unit.fillna("")
 
-        data_unit = pd.read_csv(StringIO(data_unit))
-        data_unit = data_unit.drop("Unnamed: 0", axis = 1)
-        data_unit = data_unit.fillna("")
-
-        data_mont = pd.read_csv(StringIO(data_mont))
-        data_mont = data_mont.drop("Unnamed: 0", axis = 1)
-        data_mont = data_mont.fillna("")
-        data_month[int2month(bulan)] = data_mont
+            data[mat]["bulan"][int2month(bulan)] = {}
+            data[mat]["bulan"][int2month(bulan)]["value"] = data_unit.values.tolist()
+            data[mat]["bulan"][int2month(bulan)]["columns"] = [{"title" : i}  for i in list(data_unit.columns)]
+            data[mat]["bulan"][int2month(bulan)]["Header"] = int2month(bulan)
+            data[mat]["bulan"][int2month(bulan)]["table"] = f'<div style = ""><table id="table-tahun-{k}-{int2month(bulan)}"  class="table  table-hover"  style="width : 100%"></table></div>'                                                                 
+            data[mat]["bulan"][int2month(bulan)]["id"] = f"#table-tahun-{k}-{int2month(bulan)}"
     
-    data_month = pd.concat(data_month, sort=False).reset_index(level=0).rename(columns={"level_0": "Bulan"}).fillna(0)
-    list_kategori = ["Saldo Awal", "Kedatangan", "Pemakaian", "Stock Tonase","Stock Value"]
-    
-    data = {}
-    total = None
-    for n, kat in enumerate(list_kategori):
-        d_temp = data_month[data_month["Kategori"] == kat].T
-        d_temp.columns = d_temp.iloc[0]
-        
-        d_temp = d_temp.drop(['Bulan', 'Kategori']).sort_index()
-        if total is None: 
-            total = (d_temp.sum().rename('Total'))
-        else:
-            pass
-            # if n == 1:
-            #     total += (d_temp.sum().rename('Total'))
-            # elif n == 2 :
-            #     total -= (d_temp.sum().rename('Total'))
-        d_temp = d_temp.append(d_temp.sum().rename('Total')).reset_index() 
+        data_mont2 = list(data_tahun_html.objects.filter(tahun = int(tahun)).filter(material = mat).values("data"))[0]["data"]
+        data_mont2 = pd.read_csv(StringIO(data_mont2))
+        data_mont2 = data_mont2.drop("Unnamed: 0", axis = 1)
+        data_mont2 = data_mont2.fillna("")
 
-        value_div = str(list(range(0, max(d_temp.index))))
-        text = f'<div class = "dropdown-table-month" style =" width: 0px ; display: inline-block; height: 12px; margin-right: 3px;font-weigth: bolder" value="{value_div}" name=""></div>' + kat.capitalize()
-
-        d_temp.loc[-1] = [text]+ ["" for i in d_temp.columns[1:]]  # adding a row
-        d_temp.index = d_temp.index + 1  # shifting index
-        d_temp.sort_index(inplace=True)
-
-        print(d_temp)
-
-        
-
-    for i in material:
-        data[i] = {}
-
+        data[mat]["tahun"]["value"] = data_mont2.values.tolist()
+        data[mat]["tahun"]["columns"] = [{"title" : i}  for i in list(data_mont2.columns)]
+        data[mat]["tahun"]["Header"] = mat
+        data[mat]["tahun"]["table"] = f'<div style = ""><table id="table-tahun-{k}"  class="table  table-hover"  style="width : 100%"></table></div>'                                                                 
+        data[mat]["tahun"]["id"] = f"#table-tahun-{k}"
     return data
+
+
+
+def get_available_data(request):
+    waktu_unique = []
+    waktu = list(data_bulan_unit.objects.filter(valid = True).values( "tahun","bulan").distinct())
+    if list(waktu) != []:
+        for i in waktu:
+            if [float(i["tahun"]), int2month(i["bulan"])] not in waktu_unique:
+                waktu_unique.append([float(i["tahun"]), int2month(i["bulan"])])
+
+    waktu = list(data_tahun_unit.objects.filter(valid = True).values( "tahun","bulan").distinct())
+    if list(waktu) != []:
+        for i in waktu:
+            if [float(i["tahun"]), int2month(i["bulan"])] not in waktu_unique:
+                waktu_unique.append([float(i["tahun"]), int2month(i["bulan"])])
+    
+    waktu = list(data_tanggal.objects.filter(valid = True).values( "tahun","bulan").distinct())
+    if list(waktu) != []:
+        for i in waktu:
+            if [float(i["tahun"]), int2month(i["bulan"])] not in waktu_unique:
+                waktu_unique.append([float(i["tahun"]), int2month(i["bulan"])])
+    
+    return waktu_unique
+
+def delete_data_from_post(data):
+    num_to_abbr = { name:num for num, name in enumerate(calendar.month_abbr) if num}
+    bln, thn = data.split(" - ")
+
+    data_bulan_unit.objects.filter(valid=True).filter(tahun=int(thn)).filter( bulan = num_to_abbr[bln]).delete()
+    data_tahun_unit.objects.filter(valid=True).filter(tahun=int(thn)).filter( bulan = num_to_abbr[bln]).delete()
+    data_tanggal.objects.filter(valid=True).filter(tahun=int(thn)).filter( bulan = num_to_abbr[bln]).delete()
+
+def reset(tahun):
+    data = []
+    material = sorted([i["material"] for i in list(data_bulan_unit.objects.filter(valid=True).filter(confirm=True).filter(tahun = int(tahun)).values("material").distinct())])
+    for k,mat in enumerate(material):
+        bln = sorted([i["bulan"] for i in list(data_bulan_unit.objects.filter(valid=True).filter(confirm=True).filter(tahun = int(tahun)).filter(material = mat).values("bulan").distinct())])
+        data_month = {}
+        for bulan in bln:
+            data_mont = list(data_tahun_unit.objects.filter(valid=True).filter(confirm=True).filter(tahun = int(tahun)).filter(bulan = bulan).filter(material = mat).values("data"))[0]["data"]
+
+            data_mont = pd.read_csv(StringIO(data_mont))
+            data_mont = data_mont.drop("Unnamed: 0", axis = 1)
+            data_mont = data_mont.fillna("")
+            data_month[int2month(bulan)] = data_mont
+    
+        data_month = pd.concat(data_month, sort=False).reset_index(level=0).rename(columns={"level_0": "Bulan"}).fillna(0)
+        list_kategori = ["Saldo Awal", "Kedatangan", "Pemakaian", "Stock Tonase"]
+    
+        data_total = {}
+        data_mont2 = {}
+        for n, kat in enumerate(list_kategori):
+            d_temp = data_month[data_month["Kategori"] == kat].T
+            d_temp.columns = d_temp.iloc[0]
+            d_temp = d_temp.drop(['Bulan', 'Kategori']).sort_index()
+            if n < 3:
+                data_total[kat] = d_temp.sum().rename('Total' )
+            d_temp = d_temp.append(d_temp.sum().rename('Total ' + kat)).reset_index() 
+
+            value_div = str(list(range(0, max(d_temp.index))))
+            text = f'<div class = "dropdown-table-month" style =" width: 0px ; display: inline-block; height: 12px; margin-right: 3px;font-weigth: bolder" value="{value_div}" name=""></div>' + kat.capitalize()
+
+            d_temp.loc[-1] = [text]+ ["" for i in d_temp.columns[1:]]  # adding a row
+            d_temp.index = d_temp.index + 1  # shifting index
+            d_temp.sort_index(inplace=True)
+            data_mont2[kat] = d_temp
+
+            if n == 2:
+                data_total = pd.concat(data_total, sort=False).reset_index(level=0).reset_index()
+                data_total = pd.pivot_table(data_total, columns=["Bulan"], index = ["level_0"], values=["Total"]).fillna(0)
+                ttl_adm = None
+                for i in ["Saldo Awal", "Kedatangan","Pemakaian"]:
+                    if i in data_total.index:
+                        if ttl_adm is  None:
+                            ttl_adm = data_total.loc[i]
+                        else:
+                            if  i in ["Saldo Awal", "Kedatangan"]:
+                                ttl_adm = ttl_adm + data_total.loc[i]
+                            else:
+                                ttl_adm = ttl_adm - data_total.loc[i]
+                if i is not None:
+                    data_total.loc["Total Administrasi"] = ttl_adm
+                data_total = data_total.reset_index()
+                data_total.columns = ["index"] + [i[1] for i in data_total.columns[1:]]
+
+                data_mont2["Total Administrasi"] = data_total.iloc[-1:]
+
+            if n == 3 :
+                b = (data_mont2["Total Administrasi"])
+                a = d_temp.iloc[-1:].reset_index()
+                a = a.drop("level_0", axis = 1)
+                a.columns = ["index"] + [i for i in a.columns[1:]]
+
+                c = b.iloc[0, 1:]-a.iloc[0,1:]
+                c["index"] = "Sisa Administrasi"
+                data_mont2["Sisa Administrasi"] = c.to_frame().T
+        bln  = ["index"] + [int2month(i) for i in bln]
+        data_mont2 = pd.concat(data_mont2, sort=False).reset_index().fillna(0).drop(["level_0", "level_1"], axis = 1)[bln]
+        data_mont2.columns = ["Rincian"] + [ i for i in data_mont2.columns[1:]]
+
+        data.append(data_tahun_html(
+                                    tahun = int(float(tahun)),
+                                    material = mat,
+                                    data = data_mont2.fillna("").to_csv(),
+                                )
+                            )
+
+
+
+    data_tahun_html.objects.filter(tahun = int(tahun)).delete()
+    data_tahun_html.objects.bulk_create(data)
+
+
+
+

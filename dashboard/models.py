@@ -70,8 +70,17 @@ class data_tahun_unit(models.Model):
     last_updated = models.DateTimeField('Update Terakhir',auto_now_add=True)
     uploader = models.ForeignKey(User, on_delete=models.PROTECT)
 
+class data_tahun_html(models.Model):
+    tahun = models.IntegerField('Tahun')
+    material = models.CharField('Material',max_length=255)
+    data = models.TextField('Description')
+
+    last_updated = models.DateTimeField('Update Terakhir',auto_now_add=True)
+    # uploader = models.ForeignKey(User, on_delete=models.PROTECT)
+
 class data_tanggal(models.Model):
     tahun = models.IntegerField('Tahun')
+    bulan = models.IntegerField('Bulan')
     posting_date = models.DateTimeField('posting_date')
     material = models.CharField('Material',max_length=255)
     kategori = models.CharField('Kategori',max_length=255)

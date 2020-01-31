@@ -17,6 +17,7 @@ def notulensi(request):
 def report(request, pk):
     data = {}
     data["data"] = get_data_report(pk)
+    data["tahun"] = pk
     return render(request,"report.html",data)
 
 def upload(request):
@@ -62,8 +63,14 @@ def daftar_mvt(request):
     
 
 def delete_data(request):
-    context = {}
-    return render(request,"delete_data.html",context)
+    if request.method == 'POST':
+        data = request.POST["data"]
+        delete_data_from_post(data)
+        return HttpResponse("Sucsess") 
+    else:
+        context = {}
+        context["data"] = get_available_data(request)
+        return render(request,"delete_data.html",context)
 
 def login(request):
     context = {}

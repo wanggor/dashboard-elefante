@@ -2,7 +2,8 @@
 {% load static %}
 
 {% block css %}
-
+<link rel="stylesheet" href="{% static 'dependencies/datatables.net-bs/css/dataTables.bootstrap.css'%}" />
+<link rel="stylesheet" href="{% static 'css/table_custom.css'%}" />
 
 {% endblock %}
 
@@ -37,8 +38,26 @@
 {% endblock %}
 
 {% block js %}
+<!-- DataTables -->
+<script src="{% static 'dependencies/datatables/media/js/jquery.dataTables.js'%}"></script>
+<script src="{% static 'dependencies/datatables.net-bs/js/dataTables.bootstrap.js'%}"></script>
+
+<!-- DataTables buttons scripts -->
+<script src="{% static 'dependencies/pdfmake/build/pdfmake.js'%}"></script>
+<script src="{% static 'dependencies/pdfmake/build/vfs_fonts.js'%}"></script>
+<script src="{% static 'dependencies/datatables.net-buttons/js/buttons.html5.js'%}"></script>
+<script src="{% static 'dependencies/datatables.net-buttons/js/buttons.print.js'%}"></script>
+<script src="{% static 'dependencies/datatables.net-buttons/js/dataTables.buttons.js'%}"></script>
+<script src="{% static 'dependencies/datatables.net-buttons-bs/js/buttons.bootstrap.js'%}"></script>
+
 <script>
+    function formatNumber(num) {
+                            return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+                        } 
+
     var data = {{ data | safe  }};
+    var data_table_list = [];
+
     var n = 0;
     if (data.length != 0){
             for (var key in data) {
@@ -46,10 +65,147 @@
                     '<li ><div ><a class="dropdown-item" data-toggle="tab" href="#tab-'+n+'" value = "'+n+'"><small>'+key+'</small></a></div></li>'
                 );
                 $(".tab-content").last().append(
-                    '<div id="tab-'+n+'" class="tab-pane"><div class="panel-body"><h4 class="text-center" style="margin:0px">'+key+'</h4>'+"SOME DATA"+'</div></div>'
+                    '<div id="tab-'+n+'" class="tab-pane"><div class="panel-body"><h4 class="text-center" style="margin:0px">'+key+'</h4>'+data[key]["tahun"].table+'</div></div>'
                 )
+                var table_data = $(data[key]["tahun"].id).DataTable( {
+                                    data: data[key]["tahun"].value,
+                                    orderCellsTop: true,
+                                    fixedHeader: false,
+                                    scroller: true,
+                                    scrollX: true,
+                                    responsive: true,
+                                    columns: data[key]["tahun"].columns,
+                                    paging:   false,
+                                    // autoWidth: false,
+                                    ordering: false,
+                                    //info:     false,
+                                    searching : false,
+                                    columnDefs: [ {
+                                                        targets: [0],
+                                                        createdCell: function (td, cellData, rowData, row, col) {
+
+                                                            if (row == 0){
+                                                          
+                                                                $('thead').css({"cursor": "pointer","text-align" : "center"});
+                                                                
+                                                            }
+                                                            if ( ['Saldo Awal',"Sisa Administrasi", 'Pemakaian', 'Kedatangan','Persediaan administrasi', "Total Administrasi","Stock Opname","Stock Fisik"].includes(cellData) ||  $(td).has("div").length >0 ) {
+                                                                
+                                                                if ($(td).has("div").length >0){
+                                                                    if ($(td).find("div").text() == ""){
+                                                                        $(td).css({ "font-weight": "550"});
+                                                                        $(td).find("div").attr("name", "show");
+                                                                    }else{
+                                                                        $(td).css({"padding-left": "2%", "font-weight": "550"});
+                                                                    }
+
+                                                                    
+                                                                    $(td).css({"cursor": "pointer"});
+                                                                    $(td).click(function(event){
+                                                                        
+                                                                        var list_index = $(this).find("div").attr('value');
+                                                                        list_index = list_index.replace(/'/g, '"');
+                                                                        list_index = JSON.parse(list_index);
+                                                                
+                                                                        var index = $( td ).closest("tr").index() +1 ;
+                                                                        if ($(td).find("div").text() == ""){
+                                                                            // alert($(td).find("div").attr("name"));
+                                                                            
+                                                                            if ($(td).find("div").attr("name") == ""){
+                                                                                $(td).find("div").attr("name", "show")
+                                                                            }else{
+                                                                                $(td).find("div").attr("name", "")
+                                                                            }
+                                                                        
+                                                                        }else{
+                                                                            if ($(td).find("div").text() == "+"){
+                                                                                $(td).find("div").text("-")
+                                                                            }else{
+                                                                                $(td).find("div").text("+")
+                                                                            }
+
+                                                                        }
+                                                                        
+                                                                    
+                                                                        $( td ).closest("tbody").find(">tr").slice( index, index+list_index.length ).each(function( index ) {
+                                                                            event.preventDefault();
+                                                                            // $( this ).toggle() ;
+                                                                            if ($(td).find("div").text() == ""){
+                                                                                var index = $( td ).closest("tr").index() +1 ;
+                                                                                if($(td).find("div").attr("name") == ""){
+                                                                                    
+                                                                                    $( this ).show() ;
+                                                                                }else{
+                                                                                    $( this ).hide() ;
+                                                                                }
+                                                                                
+                                                                            }else{
+
+                                                                                if($(this).is(":visible")){
+                                                                                    $( this ).hide() ;
+                                                                                    
+                                                                                } else{
+                                                                                    $( this ).show() ;
+                                                                                
+                                                                                }
+                                                                            }
+                                                                            // $(this).closest("td div").toggleText('Initial', 'Secondary');
+                                                                        });
+
+                                                                    });
+                                                                
+                                                                }else{
+                                                                    $(td).css({"font-weight": "550"});
+                                                                }
+                                                            }else{
+                    
+                                                                // console.log(cellData,"Jumlah Stock Fisik (Tonase)", $(td).text().normalize("NFKC") == "Jumlah Stock Fisik (Tonase)".normalize("NFKC"));
+                                                                
+                                                                if (["Total Stock Tonase","Total Stock Fisik (Tonase)","Total Stock Value",'Saldo Sebelumnya',"Produksi Sendiri", 'Total Saldo Awal', 'Total Kedatangan','Total Pemakaian', "Jumlah Administrasi","Jumlah Saldo Tersisa"].includes(cellData)){
+                                                                    $(td).css({"padding-left": "2%"});
+                                                                }else{
+                                                                    $(td).css({"padding-left": "3%"});
+                                                                    $( td ).parent('tr').hide();
+                                                                }   
+                                                            }
+
+                                                            if (["Jumlah"].includes(cellData.replace(/ .*/,''))){
+                                                                $(td).closest('tr').css({"font-weight": "550"});
+                                                                $(td).css({"font-weight": "normal", "padding-left": "2%"});
+                                                            }
+                                                            //$(td).css({"width" : "20px","word-wrap": "break-all"});
+                                                        }
+                                                    },
+                                                    {
+                                                        targets: '_all',
+                                                        createdCell: function (td, cellData, rowData, row, col) {
+                                                            if (row>0){
+                                                                // $(td).css({"text-align": "right", "min-width": "180px"});
+                                                                $(td).css({"text-align": "right", });
+                                                                
+                                                                if ($(td).text() == ""){
+
+                                                                }else{
+                                                                    $(td).text(formatNumber(parseFloat($(td).text()).toFixed(2)));
+                                                                }
+
+                                                            }else{
+                                                                // $(td).css({"text-align": "center", });
+                                                            }
+                                                            
+                                                            
+                                                        }
+                                                    }]
+                                } );
+                                data_table_list.push(table_data);
             n ++ ;
             }
     }
+
+    $('a[data-toggle="tab"]').on( 'shown.bs.tab', function (e) {
+            $.fn.dataTable.tables( {visible: false, api: true} ).columns.adjust();
+        } );
+    
+    
 </script>
 {% endblock %}

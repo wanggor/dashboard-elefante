@@ -15,22 +15,21 @@
             </div>
             <div class="panel-body" style="min-height: 400px;">
 
-                <form method="get" class="form-horizontal" style="padding: 10%; padding-top: 100px;">
+                <form method="get" class="form-horizontal" style="padding: 10%; padding-top: 100px;padding-bottom: 1%;">
                     <div class="form-group">
-                        <div class="col-sm-12"><select class="form-control m-b" name="account">
-                            <option>option 1</option>
-                            <option>option 2</option>
-                            <option>option 3</option>
-                            <option>option 4</option>
+                        <div class="col-sm-12"><select class="form-control m-b" name="account" id="delete-item">
+                            
                         </select>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <div class="text-center">
-                            <button class="btn btn-danger" type="submit">Delete</button>
-                        </div>
-                    </div>
+                    
                 </form>
+
+                <div class="form-group">
+                    <div class="text-center">
+                        <button class="btn btn-danger" id="delete-submit">Delete</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -50,43 +49,72 @@
 <script src="{% static 'dependencies/datatables.net-buttons/js/dataTables.buttons.js'%}"></script>
 <script src="{% static 'dependencies/datatables.net-buttons-bs/js/buttons.bootstrap.js'%}"></script>
 
+<script src="{% static 'js/sweetalert2.all.min.js' %}"></script>
+
 <script>
+    var data = {{ data | safe}};
 
-    $(function () {
+    const Toast = Swal.mixin({
+        toast: false,
+        position: 'center',
+        showConfirmButton: false,
+        timer: 2000,
 
-        // Initialize Datatable 1
-        $('#datatable1').dataTable( {
-            "ajax": 'datatables.json',
-            dom: "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>tp",
-            "lengthMenu": [ [10, 25, 50, -1], [10, 25, 50, "All"] ],
-            buttons: [
-                {extend: 'copy',className: 'btn-sm'},
-                {extend: 'csv',title: 'ExampleFile', className: 'btn-sm'},
-                {extend: 'pdf', title: 'ExampleFile', className: 'btn-sm'},
-                {extend: 'print',className: 'btn-sm'}
-            ]
-        });
+        })
 
-        // Initialize Datatable 2
-        $('#datatable2').dataTable();
 
-        // Initialize Datatable 3
+    if (data.length != 0){
+            for (var key in data) {
 
-            var table = $('#datatable3').DataTable();
-        
-            $('#datatable3 tbody').on( 'click', 'tr', function () {
-                if ( $(this).hasClass('selected') ) {
-                    $(this).removeClass('selected');
+                $("#delete-item").append('<option>'+data[key][1]+' - '+data[key][0]+'</option>')
+            }}
+
+    $("#delete-submit").click(function (e) {
+
+        // alert($("#delete-item").find(":selected").text());
+
+        Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                if (result.value) {
+
+
+                    $.ajax({
+                      type:'POST',
+                      url:'/delete_data/',
+                      data:{
+                          'csrfmiddlewaretoken': '{{ csrf_token }}',
+                          "data" : $("#delete-item").find(":selected").text(),
+                      },
+                      success:function(json){
+                        $('#modalInput').modal('hide');
+                          Toast.fire({
+                          type: 'success',
+                          title: 'Success',
+                          
+                          
+                          });
+                          location.reload();
+                      },
+                      error : function(xhr,errmsg,err) {
+                        $('#modalInput').modal('hide');
+                      Toast.fire({
+                          type: 'error',
+                          title: 'Fail',
+                          
+                          }) 
+                  }
+
+
+                });
                 }
-                else {
-                    table.$('tr.selected').removeClass('selected');
-                    $(this).addClass('selected');
-                }
-            } );
-        
-            $('#buttonrdt').click( function () {
-                table.row('.selected').remove().draw( false );
-            });
+                })
 
     });
 
