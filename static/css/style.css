@@ -3739,12 +3739,12 @@ body.modal-open {
     text-align: center
 }
 .label-menu-corner .label {
-    font-size: 10px;
+    font-size: 8px;
     line-height: 12px;
-    padding: 2px 5px;
+    padding: 0px 3px;
     position: absolute;
-    right: 18px;
-    top: 12px
+    right: 12px;
+    top: -2px
 }
 #side-menu {
     background: #f7f9fa
@@ -7024,6 +7024,8 @@ a.edit{padding-left:10px;padding-right:10px}
     width: 70%;
     margin: auto;
   }
+
+
 
 
 

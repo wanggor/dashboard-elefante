@@ -11,7 +11,7 @@
     <div class="row">
         <div class="col-lg-12" style="min-height: 500px;">
             <div class="specpanel">
-                <div class="panel-heading hbuilt text-center">
+                <div class="panel-heading hbuilt text-center" >
                     <div class="panel-tools">
                         <div class="stats-title pull-right">
                             <li class="dropdown" style="list-style-type:none;">
@@ -24,7 +24,7 @@
                         </div>
                         
                     </div>
-                    LAPORAN TAHUN {{ tahun }}
+                    <p id="text-deader">LAPORAN TAHUN {{ tahun }}</p> 
                 </div>
 
                 <div class="panel-body" style="min-height: 400px; padding: 0px 0px 0px 0px;">
@@ -57,6 +57,7 @@
 
     var data = {{ data | safe  }};
     var data_table_list = [];
+    var list_material = [];
 
     var n = 0;
     if (data.length != 0){
@@ -65,9 +66,10 @@
                     '<li ><div ><a class="dropdown-item" data-toggle="tab" href="#tab-'+n+'" value = "'+n+'"><small>'+key+'</small></a></div></li>'
                 );
                 $(".tab-content").last().append(
-                    '<div id="tab-'+n+'" class="tab-pane"><div class="panel-body"><h4 class="text-center" style="margin:0px">'+key+'</h4>'+data[key]["tahun"].table+'</div></div>'
+                    '<div id="tab-'+n+'" class="tab-pane"><div class="panel-body">'+data[key]["tahun"].table+'</div><div class="panel-body" id = "sub-tap-pane-'+n+'"></div></div>'
                 )
-                var table_data = $(data[key]["tahun"].id).DataTable( {
+
+                var table = $(data[key]["tahun"].id).DataTable( {
                                     data: data[key]["tahun"].value,
                                     orderCellsTop: true,
                                     fixedHeader: false,
@@ -197,14 +199,189 @@
                                                         }
                                                     }]
                                 } );
-                                data_table_list.push(table_data);
+
+                    list_material.push(key);
+                    data_table_list.push(table);
             n ++ ;
             }
     }
 
+
+    $("thead th").click( function (event) {
+                    event.preventDefault();
+                    if (["Rincian"].includes($(this).text())){   
+
+                    }else{
+                        var tr = $(this).closest('tr');
+                        var ind = $(this).closest('.tab-pane').attr("id").split("-")[1];
+                        // console.log(data[list_material[ind]]["bulan"][$(this).text()]);
+                        var tr = $(this).closest('.dataTables_scroll').find("tbody tr").last();
+                        var row = data_table_list[ind].row( tr );
+
+                       
+
+                        if ($("#sub-tap-pane-"+ind).html() == '' || $("#sub-tap-pane-"+ind +" div h4").text() != $(this).text()){
+
+                            $("#sub-tap-pane-"+ind).html('<div style="text-align: center"><h4>'+$(this).text()+'</h4></div>'+data[list_material[ind]]["bulan"][$(this).text()].table)
+                            $(data[list_material[ind]]["bulan"][$(this).text()].id).DataTable( {
+                                        data: data[list_material[ind]]["bulan"][$(this).text()].value,
+                                        orderCellsTop: true,
+                                        fixedHeader: false,
+                                        scroller: true,
+                                        scrollX: true,
+                                        responsive: true,
+                                        columns: data[list_material[ind]]["bulan"][$(this).text()].columns,
+                                        paging:   false,
+                                        // autoWidth: false,
+                                        ordering: false,
+                                        //info:     false,
+                                        searching : false,
+                                        columnDefs: [ {
+                                                            targets: [0],
+                                                            createdCell: function (td, cellData, rowData, row, col) {
+
+                                                                if (row == 0){
+                                                            
+                                                                    $('thead').css({"cursor": "pointer","text-align" : "center"});
+                                                                    
+                                                                }
+                                                                if ( ['Saldo Awal',"Sisa Administrasi", 'Pemakaian', 'Kedatangan','Persediaan administrasi', "Total Administrasi","Stock Opname","Stock Fisik"].includes(cellData) ||  $(td).has("div").length >0 ) {
+                                                                    
+                                                                    if ($(td).has("div").length >0){
+                                                                        if ($(td).find("div").text() == ""){
+                                                                            $(td).css({ "font-weight": "550"});
+                                                                            $(td).find("div").attr("name", "show");
+                                                                        }else{
+                                                                            $(td).css({"padding-left": "2%", "font-weight": "550"});
+                                                                        }
+
+                                                                        
+                                                                        $(td).css({"cursor": "pointer"});
+                                                                        $(td).click(function(event){
+                                                                            
+                                                                            var list_index = $(this).find("div").attr('value');
+                                                                            list_index = list_index.replace(/'/g, '"');
+                                                                            list_index = JSON.parse(list_index);
+                                                                    
+                                                                            var index = $( td ).closest("tr").index() +1 ;
+                                                                            if ($(td).find("div").text() == ""){
+                                                                                // alert($(td).find("div").attr("name"));
+                                                                                
+                                                                                if ($(td).find("div").attr("name") == ""){
+                                                                                    $(td).find("div").attr("name", "show")
+                                                                                }else{
+                                                                                    $(td).find("div").attr("name", "")
+                                                                                }
+                                                                            
+                                                                            }else{
+                                                                                if ($(td).find("div").text() == "+"){
+                                                                                    $(td).find("div").text("-")
+                                                                                }else{
+                                                                                    $(td).find("div").text("+")
+                                                                                }
+
+                                                                            }
+                                                                            
+                                                                        
+                                                                            $( td ).closest("tbody").find(">tr").slice( index, index+list_index.length ).each(function( index ) {
+                                                                                event.preventDefault();
+                                                                                // $( this ).toggle() ;
+                                                                                if ($(td).find("div").text() == ""){
+                                                                                    var index = $( td ).closest("tr").index() +1 ;
+                                                                                    if($(td).find("div").attr("name") == ""){
+                                                                                        
+                                                                                        $( this ).show() ;
+                                                                                    }else{
+                                                                                        $( this ).hide() ;
+                                                                                    }
+                                                                                    
+                                                                                }else{
+
+                                                                                    if($(this).is(":visible")){
+                                                                                        $( this ).hide() ;
+                                                                                        
+                                                                                    } else{
+                                                                                        $( this ).show() ;
+                                                                                    
+                                                                                    }
+                                                                                }
+                                                                                // $(this).closest("td div").toggleText('Initial', 'Secondary');
+                                                                            });
+
+                                                                        });
+                                                                    
+                                                                    }else{
+                                                                        $(td).css({"font-weight": "550"});
+                                                                    }
+                                                                }else{
+                        
+                                                                    // console.log(cellData,"Jumlah Stock Fisik (Tonase)", $(td).text().normalize("NFKC") == "Jumlah Stock Fisik (Tonase)".normalize("NFKC"));
+                                                                    
+                                                                    if (["Jumlah Stock Tonase","Total Stock Fisik (Tonase)","Jumlah Stock Value",'Saldo Sebelumnya',"Produksi Sendiri", 'Jumlah Saldo Awal', 'Jumlah Kedatangan','Jumlah Pemakaian', "Jumlah Administrasi","Jumlah Saldo Tersisa"].includes(cellData)){
+                                                                        $(td).css({"padding-left": "2%"});
+                                                                    }else{
+                                                                        $(td).css({"padding-left": "3%"});
+                                                                        $( td ).parent('tr').hide();
+                                                                    }   
+                                                                }
+
+                                                                if (["Jumlah"].includes(cellData.replace(/ .*/,''))){
+                                                                    $(td).closest('tr').css({"font-weight": "550"});
+                                                                    $(td).css({"font-weight": "normal", "padding-left": "2%"});
+                                                                }
+                                                                //$(td).css({"width" : "20px","word-wrap": "break-all"});
+                                                            }
+                                                        },
+                                                        {
+                                                            targets: '_all',
+                                                            createdCell: function (td, cellData, rowData, row, col) {
+                                                                if (row>0){
+                                                                    // $(td).css({"text-align": "right", "min-width": "180px"});
+                                                                    $(td).css({"text-align": "right", });
+                                                                    
+                                                                    if ($(td).text() == ""){
+
+                                                                    }else{
+                                                                        $(td).text(formatNumber(parseFloat($(td).text()).toFixed(2)));
+                                                                    }
+
+                                                                }else{
+                                                                    // $(td).css({"text-align": "center", });
+                                                                }
+                                                                
+                                                                
+                                                            }
+                                                        }]
+                                    } );
+
+                            
+
+                        }else{
+                            if ($("#sub-tap-pane-"+ind +" div h4").text() == $(this).text()){
+                                $("#sub-tap-pane-"+ind).html("")
+                            }
+                            
+
+                        }
+
+                    }
+                    $.fn.dataTable.tables( {visible: false, api: true} ).columns.adjust();
+                })
+
     $('a[data-toggle="tab"]').on( 'shown.bs.tab', function (e) {
             $.fn.dataTable.tables( {visible: false, api: true} ).columns.adjust();
+            $("#text-deader").text("LAPORAN TAHUN "+{{ tahun }}+ " - " + $(this).text()) ;
+            
         } );
+
+    $("#hide-side-bar").click( function (event) {
+        $.fn.dataTable.tables( {visible: false, api: true} ).columns.adjust();
+    })
+    
+    // $(".dropdown-item").click( function (event) {
+
+    // }
+
     
     
 </script>

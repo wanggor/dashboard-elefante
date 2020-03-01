@@ -1,0 +1,348 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'dependencies/datatables.net-bs/css/dataTables.bootstrap.css'%}" />
+<link rel="stylesheet" href="{% static 'css/table_custom.css'%}" />
+<link rel="stylesheet" href="{% static 'css/chart_custom.css'%}" />
+
+<script src="https://api.mapbox.com/mapbox-gl-js/v1.7.0/mapbox-gl.js"></script>
+<link href="https://api.mapbox.com/mapbox-gl-js/v1.7.0/mapbox-gl.css" rel="stylesheet" />
+
+<style>
+	#map-container {
+    position: absolute;
+    height: 97%;
+    width: 99%;
+}
+
+#map {
+    position: relative;
+    height: 97%;
+    width: 99%;
+}
+</style>
+
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-12" style="min-height: 500px;">
+        <div class="specpanel">
+            <div class="panel-heading hbuilt">
+                <div class="panel-tools" style="height: 30px;">
+                    
+                    <div class="stats-title pull-right">
+                        <li class="dropdown" style="list-style-type:none;">
+                            <a class="dropdown-toggle label-menu-corner" href="" data-toggle="dropdown" aria-expanded="true">
+                                <i class="fa fa-bus" style="width: 30px;"></i>
+                                <span class="label label-success"></span>
+                            </a>
+                            <ul  class="dropdown-menu dropdown-menu-right hdropdown notification" style="margin-top: 20px;width: 250px; background-color: rgba(255, 255, 255, 0.95);" id="my-dropdown">
+                    
+                            <div class="panel-heading" style="background-color: #fff;">
+                                Semua Unit
+                                <div class="pull-right" style="padding-right: 15px;">
+                                    <a  id="show-all" class="active" style="color: #1ab394;"> <i class="fa fa-eye"></i></a>
+                                </div>
+                            </div>
+            
+                            <div style="overflow-y: auto;height: 540px;" id ="unit-item">
+                            </div> 
+                            </ul >
+                        </li>
+                    </div>
+                </div>
+                Grafik Pemakain Bahan Baku
+            </div>
+            <div class="panel-body" style="min-height: 600px; padding: 1%;">
+
+                <div id="map-container">
+                    <div id="map">
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="panel-footer">
+                Last Updated : 2/2/2019
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12" style="min-height: 500px;">
+        <div class="specpanel">
+            <div class="panel-heading hbuilt">
+                Statistic
+            </div>
+            <div class="panel-body" style="min-height: 400px;" id="my-container">
+            </div>
+            <div class="panel-footer">
+                Last Updated : 2/2/2019
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<!-- DataTables -->
+<script src="{% static 'dependencies/datatables/media/js/jquery.dataTables.js'%}"></script>
+<script src="{% static 'dependencies/datatables.net-bs/js/dataTables.bootstrap.js'%}"></script>
+
+<!-- DataTables buttons scripts -->
+<script src="{% static 'dependencies/pdfmake/build/pdfmake.js'%}"></script>
+<script src="{% static 'dependencies/pdfmake/build/vfs_fonts.js'%}"></script>
+<script src="{% static 'dependencies/datatables.net-buttons/js/buttons.html5.js'%}"></script>
+<script src="{% static 'dependencies/datatables.net-buttons/js/buttons.print.js'%}"></script>
+<script src="{% static 'dependencies/datatables.net-buttons/js/dataTables.buttons.js'%}"></script>
+<script src="{% static 'dependencies/datatables.net-buttons-bs/js/buttons.bootstrap.js'%}"></script>
+
+<script>
+    function format ( d ) {
+    // `d` is the original data object for the row
+    return '<div style="text-align : center; font-weight : bold ">Detail Information</div><table style="width:100%">'+
+  '<tr style= "border-top : solid thin #ddd">'+
+    '<td><div id="valuegoals" class="ct-perfect-fourth"></div></td>'+
+    '<td>Smith</td>'+
+    '<td>50</td>'+
+    '</tr>'+
+  '<tr>'+
+    '<td>Eve</td>'+
+    '<td>Jackson</td>'+
+    '<td>94</td>'+
+    '</tr>'+
+'</table>';
+}
+
+    function formatNumber(num) {
+                            return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+                        } 
+
+    var data = {{ data | safe  }};
+    $('#my-container').append(data.table);
+
+    var table = $(data.id).DataTable( {
+            data: data.value,
+            orderCellsTop: true,
+            fixedHeader: false,
+            // scroller: true,
+            scrollX: true,
+            responsive: true,
+            columns: data.columns,
+            paging:   true,
+            // autoWidth: false,
+            ordering: true,
+            //info:     false,
+            searching : true,
+            columnDefs: [ {
+                                targets: [0],
+                                createdCell: function (td, cellData, rowData, row, col) {
+
+                                }
+                            },
+                            {
+                                targets: '_all',
+                                createdCell: function (td, cellData, rowData, row, col) {
+
+
+                                        if (col == 4 || col == 5 || col == 6 || col == 7){
+                                            $(td).css({"text-align": "right", })
+                                            $(td).text(formatNumber(parseFloat($(td).text()).toFixed(2)));
+                                        }
+
+                                        if(col == 0){
+                                            $(td).css({"background-color": "black" })
+                                        }
+
+                                        if (col == 10){
+                                            // console.log(cellData);
+                                            if (cellData > 5) {
+                                                $(td).html('<span class="badge noti-arrow bg-success pull-center" style="width : 100%">'+cellData+'</span>')
+                                            }else if (cellData == 5){
+                                                $(td).html('<span class="badge noti-arrow bg-success pull-center" style="width : 100%; background-color: #ffb12b">'+cellData+'</span>')
+                                            }else{
+                                                $(td).html('<span class="badge noti-arrow bg-success pull-center" style="width : 100%; background-color: red">'+cellData+'</span>')
+                                            }
+                                        }
+                                    
+                                }
+                            }]
+        } );
+
+    $('.details-control').click(function() {
+        var tr = $(this).closest('tr');
+        var row = table.row( tr );
+ 
+        if ( row.child.isShown() ) {
+            // This row is already open - close it
+            row.child.hide();
+            tr.removeClass('shown');
+        }
+        else {
+            // Open this row
+            row.child( format(row.data()) ).show();
+            tr.addClass('shown');
+        }
+    });
+
+
+	mapboxgl.accessToken = 'pk.eyJ1Ijoid2FuZ2dvciIsImEiOiJjanRsZHA1OGczNXBkNDVtdWIzdHFvcTA3In0.gft9-509TdYWAaVzwgxGRA';
+    var map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/streets-v11',
+        center: [  112.75, -7.24],
+        zoom: 13
+    });
+
+    $("#hide-side-bar").click( function (event) {
+        $.fn.dataTable.tables( {visible: false, api: true} ).columns.adjust();
+        var mapCanvas = document.getElementsByClassName('mapboxgl-canvas')[0];
+
+        mapCanvas.style.width = '100%';
+    })
+
+    $(".label-menu-corner").each(function(){
+        var el= $(this).find(".label-success");
+        var textLength = el.html().length;
+
+        el.css("right", 15-textLength*3 +"px")
+});
+
+</script>
+
+<script>
+
+    var i;
+    for (i = 0; i < 13; i++) {
+        $("#unit-item").append(
+            '<div class=" filter-item">'+
+                '<div class="panel-body" >'+
+                    '<div>'+
+                            '<div style="width: 100%;">'+
+                                '<table class="list-table" style="width: 100%;" >'+
+                                    '<tr>'+
+                                        '<td>'+
+                                            'Driver'+
+                                        '</td>'+
+                                        '<td>'+
+                                        ':'+
+                                        '</td>'+
+                                        '<td>'+
+                                            'Pak X'+
+                                        '</td>'+
+                                        '<td rowspan="2" style="padding-left: auto;padding-right: 0px;">'+
+                                            '<a href="#" style="color: #1ab394;" id="show-unit-'+i+'" class="show-unit active"> <i class="fa fa-eye"></i></a>'+
+                                        '</td>'+
+                                        '<td rowspan="2" style="padding-left: auto;padding-right: 0px;">'+
+                                            '<a href="#"> <i class="fa fa-random"></i></a>'+
+                                       ' </td>'+
+                                    '</tr>'+
+                                    '<tr>'+
+                                        '<td>'+
+                                            'Trip'+
+                                       ' </td>'+
+                                        '<td>'+
+                                            ':'+
+                                        '</td>'+
+                                       ' <td>'+
+                                           ' 300'+
+                                       ' </td>'+
+                                    '</tr>'+
+                                '</table>'+
+                            '</div> '+
+                        '</div>'+
+                    '</div>'+
+            '</div>'
+        )
+    }
+
+    $("#show-all").click( function (event) {
+        event.preventDefault();
+        if ($(this).hasClass("active")){
+            $(this).find("i").removeClass("fa-eye");
+            $(this).find("i").addClass("fa-eye-slash");
+            $(this).css("color", "#9d9fa2");
+            $(this).removeClass("active");
+
+            $(".show-unit").each(function(){
+                if ($(this).hasClass("active")){
+                    $(this).find("i").removeClass("fa-eye");
+                    $(this).find("i").addClass("fa-eye-slash");
+                    $(this).css("color", "#9d9fa2");
+                    $(this).removeClass("active");
+                }
+            });
+            
+
+        }else{
+            $(this).find("i").removeClass("fa-eye-slash");
+            $(this).find("i").addClass("fa-eye");
+            $(this).css("color", "#1ab394");
+            $(this).addClass("active")
+
+            $(".show-unit").each(function(){
+                if ($(this).hasClass("active")){
+            
+                }else{
+                    $(this).find("i").removeClass("fa-eye-slash");
+                    $(this).find("i").addClass("fa-eye");
+                    $(this).css("color", "#1ab394");
+                    $(this).addClass("active")
+                }
+            });
+        }
+        
+    })
+
+
+    $(".show-unit").click( function (event) {
+        event.preventDefault();
+        if ($(this).hasClass("active")){
+            $(this).find("i").removeClass("fa-eye");
+            $(this).find("i").addClass("fa-eye-slash");
+            $(this).css("color", "#9d9fa2");
+            $(this).removeClass("active");
+
+        }else{
+            $(this).find("i").removeClass("fa-eye-slash");
+            $(this).find("i").addClass("fa-eye");
+            $(this).css("color", "#1ab394");
+            $(this).addClass("active")
+        }
+        
+    })
+
+    $(".filter-item").click( function (event) {
+        event.preventDefault();
+        // alert(1);
+        $(this).select();
+
+    })
+</script>
+<script>
+    var marker = new mapboxgl.Marker();
+ 
+    function animateMarker(timestamp) {
+        var radius = 20;
+    
+    // Update the data to a new position based on the animation timestamp. The
+    // divisor in the expression `timestamp / 1000` controls the animation speed.
+    marker.setLngLat([
+        Math.cos(timestamp / 1000) * radius,
+        Math.sin(timestamp / 1000) * radius
+        ]);
+    
+    // Ensure it's added to the map. This is safe to call if it's already added.
+    marker.addTo(map);
+    
+    // Request the next frame of the animation.
+    requestAnimationFrame(animateMarker);
+    }
+    
+    // Start the animation.
+    requestAnimationFrame(animateMarker);
+</script>
+{% endblock %}

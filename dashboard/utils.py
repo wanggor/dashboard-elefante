@@ -502,11 +502,41 @@ def spit_data_into_departemen(data, tahun, bulan, mat):
     return a
 
 
-def extract_data(data):
+
+def extract_data(data, mode):
+
+    #Get Plant List from data base
+    plant_list = pd.DataFrame(list(Plant.objects.all().values()))
+    plant_list = plant_list.rename(columns = {"id":'ID','nama': 'Nama Plant', "kode":'Kode Plant', "departement":'Nama Departemen','perusahaan':'Perusahaan', 'kode pos':'Kode Pos', "lokasi":'Lokasi'})
+    plant_convert = plant_list[["Kode Plant", "Nama Plant"]].set_index("Kode Plant").to_dict()["Nama Plant"]
+    plant_dept = plant_list[["Kode Plant", "Nama Departemen"]].set_index("Kode Plant").to_dict()["Nama Departemen"]
+
+
+    #Get Material list from database
+    materail_list = pd.DataFrame(list(Material.objects.all().values()))
+    material_list2 = materail_list[['kategori',"nama_kelompok",'kode']].set_index('kode').to_dict()['nama_kelompok']
+    material_list1 = materail_list[['kategori',"nama_kelompok",'kode']].set_index('kode').to_dict()['kategori']
+    
     context = {}
     data = data.drop(['id'], axis=1)
     data = data.drop(['last_updated'], axis=1)
     data = data.drop(['uploader_id'], axis=1)
+
+    if mode == "saldo_awal":
+        data["departemen"] = data["unit"].map(plant_dept)
+        data["nama unit"] = data["unit"].map(plant_convert)
+
+        data["nama material"] = data["material"].map(material_list2)
+        data["kelompok material"] = data["material"].map(material_list1)
+        data = data[["tahun", "kelompok material", "nama material", "material", "departemen", "nama unit", "unit", "nilai"]]
+
+    elif mode == "plan":
+        data = data[["kode", "departement", "nama", "perusahaan", "kode_pos", "lokasi"]]
+    
+    elif mode == "material":
+        data = data[["kategori","nama_kelompok","kode","deskripsi", "informasi"]]
+    
+        
     data["No"] = [ i+1 for i in range(data.shape[0])]
     header_name = list(data.columns)
     header_name.insert(0, header_name.pop(-1))
@@ -529,11 +559,16 @@ def update_plan(data, request):
         perusahaan = i["Perusahaan"],
         kode_pos = i["Kode pos"],
         lokasi = i["Lokasi"],
-        latitude = i["Latitude"],
-        longitude = i["Longitude"],
-        keterangan = i["Keterangan"],
-        email = i["Email"],
-        number = i["Number"],
+        latitude = "",
+        longitude = "",
+        keterangan = "",
+        email = "",
+        number = "",
+        # latitude = i["Latitude"],
+        # longitude = i["Longitude"],
+        # keterangan = i["Keterangan"],
+        # email = i["Email"],
+        # number = i["Number"],
         uploader = request.user, 
         ) for i in data ]
     Plant.objects.all().delete()
@@ -745,8 +780,6 @@ def get_data_report(tahun):
         data[mat]["tahun"]["id"] = f"#table-tahun-{k}"
     return data
 
-
-
 def get_available_data(request):
     waktu_unique = []
     waktu = list(data_bulan_unit.objects.filter(valid = True).values( "tahun","bulan").distinct())
@@ -856,6 +889,32 @@ def reset(tahun):
 
     data_tahun_html.objects.filter(tahun = int(tahun)).delete()
     data_tahun_html.objects.bulk_create(data)
+
+
+def get_chart_data():
+    data = {
+        "" : ['<a ><i class="fa fa-plus-circle" ></i><a/>','<a><i class="fa fa-plus-circle"></i><a/>','<a><i class="fa fa-plus-circle"></i><a/>'],
+        "Unit" : ["Unit 1","Unit 2","Unit 3"],
+        "Penanggung Jawab" : ["nama1", "nama2", "nama3"],
+        "Kontak" : ["0857XX", "0737XX", "0677XX"],
+        "Total Trip (km)" : [100, 120, 130],
+        "Lama Trip (jam)" : [54,23, 80],
+        "Estimate Cost" : [3434234,23234234,23423423],
+        "Actual Cost" : [43435345,12312,54645],
+        "Review" : ['<i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i>','<i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i>','<i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i>'],
+        "Trip History" : ["safe","safe","safe"],
+        "Score" : [8,5,4]
+    }
+
+    data = pd.DataFrame(data= data)
+
+    output = {}
+    output["value"] = data.values.tolist()
+    output["columns"] = [{"title" : i} if  n != 0 else {"title" : i, "className" : "details-control"}  for n, i in enumerate(list(data.columns)) ]
+    output["table"] = f'<div style = ""><table id="mytable"  class="table  table-hover"  style="width : 100%"></table></div>'                                                                 
+    output["id"] = f"#mytable"
+
+    return output
 
 
 

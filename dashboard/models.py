@@ -14,7 +14,6 @@ class SaldoAwal(models.Model):
 class MovementType(models.Model):
     deskripsi = models.CharField('Deskripsi',max_length=255)
     kode = models.IntegerField('Movement Type')
-
     last_updated = models.DateTimeField('Update Terakhir',auto_now_add=True)
     uploader = models.ForeignKey(User, on_delete=models.PROTECT)
 

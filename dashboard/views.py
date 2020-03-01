@@ -5,6 +5,8 @@ from dashboard.utils import *
 
 import json
 import pandas as pd
+import random
+import numpy as np
 
 def home(request):
     context = {}
@@ -33,7 +35,7 @@ def saldo_awal(request):
     context = {}
     data = pd.DataFrame(list(SaldoAwal.objects.all().values()))
     if list(data) != []:
-        context = extract_data(data)
+        context = extract_data(data, "saldo_awal")
     else:
         context["header"] = [{"title" : "No"}] + [{"title" : f.name.replace("_", " ").capitalize() } for f in SaldoAwal._meta.get_fields()][1:-2]
         context["value"] = [[" " for i in range(len(context["header"]))]]
@@ -43,14 +45,14 @@ def daftar_plan(request):
     context = {}
     data = pd.DataFrame(list(Plant.objects.all().values()))
     if list(data) != []:
-        context = extract_data(data)
+        context = extract_data(data, "plan")
     return render(request,"daftar_plan.html",context)
 
 def daftar_material(request):
     context = {}
     data = pd.DataFrame(list(Material.objects.all().values()))
     if list(data) != []:
-        context = extract_data(data)
+        context = extract_data(data, "material")
 
     return render(request,"daftar_material.html",context)
 
@@ -58,7 +60,7 @@ def daftar_mvt(request):
     context = {}
     data = pd.DataFrame(list(MovementType.objects.all().values()))
     if list(data) != []:
-        context = extract_data(data)
+        context = extract_data(data, "mvt")
     return render(request,"daftar_mvt.html",context)
     
 
@@ -79,6 +81,17 @@ def login(request):
 def reset_password(request):
     context = {}
     return render(request,"reset_password.html",context)
+
+def chart(request):
+    context = {}
+    context["data"] = get_chart_data()
+    return render(request,"chart.html",context)
+
+def get_data_position(request):
+    t = random.random()
+    data = get_home_data()
+    return HttpResponse(json.dumps(data, default=default))
+
 
 
 # POST
