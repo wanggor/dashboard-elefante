@@ -404,7 +404,7 @@
                 <div class="panel-footer text-right">
                     <button class="btn btn-link " type="button" id="edit-button"><i class="fa fa-edit"></i> <span class="bold">Edit</span></button>
                     <button class="btn btn-link " type="button" id="save-button"><i class="fa fa-save"></i> <span class="bold">Save</span></button>
-                    <button class="btn btn-success hide " type="button" id="print-button"><i class="fa fa-print"></i> <span class="bold">Print</span></button>
+                    <button class="btn btn-success" type="button" id="print-button"><i class="fa fa-print"></i> <span class="bold">Print</span></button>
                 </div>
             </div>
         </div>
@@ -750,16 +750,16 @@
 
     $("#print-button").click(function () {
 
-        // var w = document.getElementById("all-content").offsetWidth;
-        // var h = document.getElementById("all-content").offsetHeight;
-        // // alert(w,h)
-        // html2canvas(document.getElementById("all-content")).then(function(canvas) {
-        //     var img1 = canvas.toDataURL("image/jpeg", 1);
-        //     document.body.appendChild(canvas)
-        //     let doc = new jsPDF('l', 'px', 'a4',);
-        // doc.addImage( img1, 'PNG', 0, 0, w, h);
-        // doc.save("file.pdf");
-        // });
+        var w = document.getElementById("all-content").offsetWidth;
+        var h = document.getElementById("all-content").offsetHeight;
+        // alert(w,h)
+        html2canvas(document.getElementById("all-content")).then(function(canvas) {
+            var img1 = canvas.toDataURL("image/jpeg", 1);
+            document.body.appendChild(canvas)
+            let doc = new jsPDF('p', 'px', 'a4');
+            doc.addImage( img1, 'PNG', 0, 0, h, w);
+            doc.save("file.pdf");
+        });
 
         // html2canvas($("#all-content"), {
         //     onrendered: function(canvas) {         
