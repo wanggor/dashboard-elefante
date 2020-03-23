@@ -34,6 +34,15 @@ class Plant(models.Model):
     last_updated = models.DateTimeField('Update Terakhir',auto_now_add=True)
     uploader = models.ForeignKey(User, on_delete=models.PROTECT)
 
+class Harga(models.Model):
+    tahun = models.IntegerField()
+    bulan = models.IntegerField()
+    material = models.IntegerField()
+    nilai = models.FloatField()
+
+    last_updated = models.DateTimeField('Update Terakhir',auto_now_add=True)
+    uploader = models.ForeignKey(User, on_delete=models.PROTECT)
+
 class Material(models.Model):
     kode = models.IntegerField('Kode Material')
     deskripsi = models.CharField('Deskripsi',max_length=255)
@@ -93,3 +102,39 @@ class data_tanggal(models.Model):
 
     last_updated = models.DateTimeField('Update Terakhir',auto_now_add=True)
     uploader = models.ForeignKey(User, on_delete=models.PROTECT)
+
+class Data_pemakain(models.Model):
+    tahun = models.IntegerField('Tahun')
+    bulan = models.IntegerField('Bulan')
+    material = models.CharField('Material',max_length=255)
+    plant = models.CharField('Plant',max_length=255)
+    value = models.FloatField('Value',)
+
+class Notulensi(models.Model):
+    lock = models.BooleanField("Lock")
+    tahun = models.IntegerField('Tahun')
+    bulan = models.IntegerField('Bulan')
+    nomor = models.CharField('Nomor',max_length=255)
+    hari_tanggal = models.CharField('Hari_tanggal',max_length=255)
+    ruang = models.CharField('Hari_tanggal',max_length=255)
+    pukul = models.CharField('Pukul',max_length=255)
+    hal = models.CharField('Hal',max_length=255)
+    info = models.CharField('Info',max_length=255)
+    pimpinan_rapat = models.CharField('Pimpinan_rapat',max_length=255)
+    notulis = models.CharField('Notulis',max_length=255)
+    jabatan = models.CharField('Jabatan',max_length=255)
+    nama_pimpinan = models.CharField('Nama_pimpinan',max_length=255)
+
+    total = models.CharField('total',max_length=255)
+
+    perihal = models.TextField('Perihal')
+    perhatian =  models.TextField('Perhatian')
+    rekons = models.TextField('Rekons')
+    catatan = models.TextField('Catatan')
+    hal_disampaikan = models.TextField('Hal_disampaikan')
+    bertanda_bintang = models.TextField('Bertanda_bintang')
+
+    distribusi = models.TextField('Distribusi')
+
+
+

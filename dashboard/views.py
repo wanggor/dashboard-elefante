@@ -1,5 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.db.models import Sum
+from django.db.models import Q
 
 from dashboard.utils import *
 
@@ -7,13 +9,59 @@ import json
 import pandas as pd
 import random
 import numpy as np
+from datetime import datetime
+import calendar
 
 def home(request):
     context = {}
+    data = pd.DataFrame(list(Data_pemakain.objects.all().values()))
+    if data.empty:
+        context["tahun"] = []
+        context["material"] = []
+        context["plant"] = []
+        context["Data"] = []
+    
+    else:
+        context["tahun"] = sorted(data["tahun"].unique())
+        context["material"] = sorted(data["material"].unique())
+        context["plant"] = sorted(data["plant"].unique())
+
+        data_line = []
+        abbr_to_num = {num: name for num, name in enumerate(calendar.month_abbr) if num}
+        for bln in range(12):
+            data_line.append(
+                    {
+                        "date": f"{abbr_to_num[bln+1]}",
+                        "x" : bln+1,
+                        "date-time": str(datetime(2019, bln+1, 1, 0, 0))
+                    }
+                )
+            average = 0
+            n_f = 0
+            for th in Data_pemakain.objects.values('tahun').distinct():
+                b = bln+1
+                nilai = Data_pemakain.objects.filter(tahun = th["tahun"]).filter(bulan = b).aggregate(Sum('value'))
+                if nilai["value__sum"] is not None:
+                    data_line[-1][str(int(float(th["tahun"])))] = - nilai["value__sum"]
+                    average +=  -nilai["value__sum"]
+                    n_f += 1
+            if n_f != 0:
+                average = average/n_f
+                data_line[-1]["Rata-rata"] = average
+        context["Data"] = data_line
     return render(request,"index.html",context)
 
 def notulensi(request):
+    # reset(2019)
     context = {}
+
+    waktu_unique = []
+    waktu = list(Notulensi.objects.values( "tahun","bulan").distinct())
+    if list(waktu) != []:
+        for i in waktu:
+            if [float(i["tahun"]), int2month(i["bulan"])] not in waktu_unique:
+                waktu_unique.append(int2month(i["bulan"]) +" - "+str(i["tahun"]))
+    context["waktu"] = waktu_unique
     return render(request,"notulensi.html",context)
 
 def report(request, pk):
@@ -30,6 +78,16 @@ def validasi(request):
     context = {}
     context["data"] = get_vatidate_data()
     return render(request,"validasi.html",context)
+
+def daftar_harga(request):
+    context = {}
+    data = pd.DataFrame(list(Harga.objects.all().values()))
+    if list(data) != []:
+        context = extract_data(data, "harga")
+    else:
+        context["header"] = [{"title" : "No"}] + [{"title" : f.name.replace("_", " ").capitalize() } for f in SaldoAwal._meta.get_fields()][1:-2]
+        context["value"] = [[" " for i in range(len(context["header"]))]]
+    return render(request,"daftar_harga.html",context)
 
 def saldo_awal(request):
     context = {}
@@ -92,10 +150,82 @@ def get_data_position(request):
     data = get_home_data()
     return HttpResponse(json.dumps(data, default=default))
 
+#GET
+def getTableData(request):
+    if request.method == 'POST':
+        data = dict(request.POST)
+        if "start" in data.keys() and "end" in data.keys():
+            start = [int(float(i)) for i  in  data["start"][0].split("/")]
+            end = [int(float(i)) for i  in  data["end"][0].split("/")]
+            start = datetime(year=start[2], month=start[1], day=start[0])
+            end = datetime(year=end[2], month=end[1], day=end[0])
+
+            data = data_tanggal.objects.filter(posting_date__range=(start, end)).filter(valid = True).values("posting_date", "kategori", "material", "plant","receiving_plant", "description","value")
+            data = {"data" : [[i["posting_date"].strftime("%d/%m/%Y"), i["kategori"], i["material"], i["plant"], i['receiving_plant'], i["description"], i['value']] for i in data]}
+
+            return HttpResponse(json.dumps(data,default=default))
+
+def getNotulensi(request):
+    if request.method == 'POST':
+        abbr_to_num = {name :num  for num, name in enumerate(calendar.month_abbr) if num}
+        num2mont = {num :name  for num, name in enumerate(calendar.month_abbr) if num}
+        data = dict(request.POST)["data"][0].split(" - ")
+        bulan = abbr_to_num[data[0]]
+        tahun = int(float(data[1]))
+        
+        data_bulan = sorted([i["bulan"] for i in list(Notulensi.objects.filter(tahun = tahun).values("bulan"))])
+        ind = data_bulan.index(bulan)
+        if ind == 0:
+            bulan_lalu = "-"
+        elif ind > 0:
+            bulan_lalu = num2mont[data_bulan[ind-1]]
+        data = {}
+        data["bulan"] = dict(request.POST)["data"][0].split(" - ")[0]
+        data["bulan_lalu"] = bulan_lalu
+        data["tahun"] = tahun
+        data["tanggal"] = calendar.monthrange(tahun, bulan)[1]
+
+       
+        data["data"] = list(Notulensi.objects.filter(tahun = tahun).filter(bulan = bulan).values())[0]
+        
+        return HttpResponse(json.dumps(data,default=default))
+
+def updateNotulensi(request):
+    if request.method == 'POST':
+        abbr_to_num = {name :num  for num, name in enumerate(calendar.month_abbr) if num}
+        data = dict(request.POST)
+
+        tanggal = data["bulan"][0].split(" ")
+        bulan = abbr_to_num[tanggal[0]]
+        tahun = int(float(tanggal[1]))
+
+        Notulensi.objects.filter(tahun = tahun).filter(bulan = bulan).update(
+            nomor = data["nomor-surat"][0],
+            hari_tanggal = data["hari-tanggal-rapat"][0],
+            ruang = data["ruang-rapat"][0],
+            pukul = data["Pukul-rapat"][0],
+            hal = data["perihal-rapat"][0],
+            info = data["additional-info"][0],
+            pimpinan_rapat = data["nama-pimpinan-rapat"][0],
+            notulis = data["notulis"][0],
+            jabatan = data["penanggung-jawab-rapat"][0],
+            nama_pimpinan = data["nama-penanggung-jawab-rapat"][0],
+            total = data["total"][0],
+            perihal = data["container-perihal-rapat"][0],
+            perhatian = data["table-perhatian-id"][0],
+            rekons = data["table-rekons-id"][0],
+            catatan = data["table-catatan-id"][0],
+            hal_disampaikan = data["container-summary-rapat"][0],
+            bertanda_bintang = data["bertanda-bintang-table"][0],
+            distribusi =  data["distribusi"][0]
+            
+        )
+        data = {}
+        data["data"] = {}
+        return HttpResponse(json.dumps(data,default=default))
 
 
 # POST
-
 def home_data(request):
     if request.method == 'POST':
         data = get_home_data()
@@ -144,6 +274,12 @@ def upload_mvt(request):
     if request.method == 'POST':
         data = pd.read_excel (request.FILES['file[0]'],skipinitialspace=True)
         update_mvt(data, request)
+    return HttpResponse("Sucsess")
+
+def upload_harga(request):
+    if request.method == 'POST':
+        data = pd.read_excel (request.FILES['file[0]'],skipinitialspace=True)
+        update_harga(data, request)
     return HttpResponse("Sucsess")
 
 def upload_files(request):

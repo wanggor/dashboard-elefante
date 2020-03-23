@@ -16,10 +16,10 @@
     <div class="col-lg-12" style="min-height: 500px;">
         <div class="specpanel">
             <div class="panel-heading hbuilt text-center">
-                Daftar Movement Type
+                HARGA SATUAN PEMAKAIAN BAHAN BAKU
             </div>
             <div class="panel-body" style="min-height: 400px;">
-                <table id="datatable" class="table table-hover" width="100%">
+                <table id="datatable" class="table  table-hover" width="100%">
                 </table>
             </div>
             <div class="panel-footer text-right">
@@ -28,7 +28,7 @@
                             <div class="modal-dialog modal-lg" style="width: 80%;">
                                 <div class="modal-content">
                                     <div class="modal-header text-center" style="height:10px; padding-bottom: 50px; padding-top: 0px">
-                                        <h3 class="font-bold" style="color: #888;">Upload Data <small>(Data Movement Type.xlsx)</small></h3>
+                                        <h3 class="font-bold" style="color: #888;">Upload Data <small>(Data Harga.xlsx)</small></h3>
                                     </div>
                                     <div class="modal-body">
                                         <form action="/upload/" class="dropzone" id="myAwesomeDropzone" method="post" style="height: 350px; background-color: white;border: 2px dashed #888;padding: 100px; ">
@@ -80,7 +80,7 @@
             "scrollX": true,
             dom: "<'row'<'col-sm-4'l><'col-sm-4 text-center'B><'col-sm-4'f>>tp",
             buttons: [
-                {extend: 'excelHtml5',title: 'ExampleFile',filename:"Data Movement Type",exportOptions: {
+                {extend: 'excelHtml5',title: 'ExampleFile',filename:"Data Harga",exportOptions: {
                                         columns: ':visible'
                                     }, className: 'btn-sm'},
 
@@ -93,14 +93,15 @@
 
 
 <script>
-    var file_name = ["DATA MOVEMENT TYPE"];
-    var url_post = "/upload_mvt/"
+    var file_name = ["DATA HARGA"];
+    var url_post = "/upload_harga/"
 
     const Toast = Swal.mixin({
         toast: false,
         position: 'center',
         showConfirmButton: false,
         timer: 2000,
+
         })
 
     Dropzone.options.myAwesomeDropzone = {

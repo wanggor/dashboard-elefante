@@ -1,8 +1,127 @@
 {% extends 'base.html' %}
 {% load static %}
 
+
 {% block css %}
 
+<link rel="stylesheet" href="{% static 'dependencies/summernote/dist/summernote.css'%}" />
+<!-- <link rel="stylesheet" href="{% static 'dependencies/summernote/dist/summernote-bs3.css'%}" /> -->
+
+
+<style>
+    .note-editor{
+        border-color: #1ab394;
+        padding: 5px;
+    }
+    
+    .table-summary {
+      /* font-family: "Trebuchet MS", Arial, Helvetica, sans-serif; */
+      border-collapse: collapse;
+      width: 100%;
+      margin-bottom: 40px;
+    }
+    
+    .table-summary td, .table-summary th {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: right;
+    }
+    
+    /* .table-summary tr:nth-child(even){background-color: #f2f2f2;} */
+    .table-summary td:nth-child(1) { text-align : center; }
+    .table-summary td:nth-child(2) { text-align : center; }
+    .table-summary td:last-child{ text-align : left; }
+    
+    .table-summary tr:hover {background-color: #ddd;}
+    
+    .table-summary th {
+      padding-top: 12px;
+      padding-bottom: 12px;
+      text-align: left;
+      background-color: #1ab394;
+      color: white;
+      text-align: center;
+    }
+    
+    .table-rekons {
+      /* font-family: "Trebuchet MS", Arial, Helvetica, sans-serif; */
+      border-collapse: collapse;
+      width: 100%;
+      margin-bottom: 40px;
+    }
+    
+    .table-rekons td, .table-rekons th {
+      border: 1px solid #ddd;
+      padding: 8px;
+    
+    }
+    
+    .table-rekons td:first-child { text-align : center; }
+    .table-rekons td:nth-child(2) { text-align : left; }
+    
+    .table-rekons tr:hover {background-color: #ddd;}
+    
+    .table-rekons th {
+      padding-top: 12px;
+      padding-bottom: 12px;
+      text-align: left;
+      background-color: #1ab394;
+      color: white;
+      text-align: center;
+    }
+    
+    .table-rekons td {
+      text-align: right;
+    }
+    .table-rekons .sub-title {
+        font-weight: 900;
+    }
+    
+    .table-catatan {
+      /* font-family: "Trebuchet MS", Arial, Helvetica, sans-serif; */
+      border-collapse: collapse;
+      width: 100%;
+      margin-bottom: 40px;
+    }
+    
+    
+    .table-catatan td:nth-child(1) { text-align : center; width: 30px;}
+    .table-catatan td:nth-child(2) { text-align : left}
+    .table-catatan td:nth-child(3) { text-align : center; width: 20px;}
+    .table-catatan td:nth-child(4) { text-align : right; padding-right: 10px;}
+    .table-catatan td:nth-child(5) { text-align : left}
+    .table-catatan td:nth-child(6) { text-align : right}
+    
+    .table-sub {
+        /* font-family: "Trebuchet MS", Arial, Helvetica, sans-serif; */
+        /* border-collapse: collapse; */
+        width: 100%;
+        border: none !important;
+    }
+    
+    .table-columns{
+        /* font-family: "Trebuchet MS", Arial, Helvetica, sans-serif; */
+      border-collapse: collapse;
+      width: 100%;
+    }
+    
+    .table-columns .td {
+      border: 1px solid #ddd;
+      padding: 8px;
+    }
+
+    .blue{
+        color: blue;
+    }
+    .red {
+        color: red;
+    }
+
+    .hal-value{
+        text-align: right;
+        padding-right: 10px;
+    }
+    </style>
 
 {% endblock %}
 
@@ -19,25 +138,273 @@
                                     <i class="fa fa-navicon" style="width: 30px;"></i>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-right hdropdown notification" style="margin-top: 10px;height: 200px;overflow-y: auto;">
-                                    <li class="summary"><a href=""><small>Load Data</small></a></li>
-                                    <li class="summary"><a href=""><small>Load Data</small></a></li>
-                                    <li class="summary"><a href=""><small>Load Data</small></a></li>
-                                    <li class="summary"><a href=""><small>Load Data</small></a></li>
-                                    <li class="summary"><a href=""><small>Load Data</small></a></li>
-                                    <li class="summary"><a href=""><small>Load Data</small></a></li>
-                                    <li class="summary"><a href=""><small>Load Data</small></a></li>
+                                    {% for wkt in waktu%}
+                                            <li class="summary"><a href="">{{ wkt }}</a></li>
+                                            <!-- <div style="font-size:x-small; padding-top: 5px;"> <input type="checkbox" class="i-checks checks-all-tahun" checked> {{ thn }}</div> -->
+                                    {% endfor %}
                                 </ul>
                             </li>
                         </div>
                         
                     </div>
-                    Notulensi
+                    <div id="title">  Notulensi </div>
+                   
                 </div>
-                <div class="panel-body" style="min-height: 400px;">
+                <div class="panel-body" style="min-height: 400px;" id="all-content">
+                  
+                            <div style="border-bottom: 2px solid #1ab394;border-top: 2px solid #1ab394;">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                            <table  style="width: 100%;text-align: center;margin-bottom: 10px;">
+                                                <tr>
+                                                  <td rowspan="6" style="width:120px; border-right: 2px  #f4f4f4;"><img src="{% static 'images/petro.jpg'%}" alt=""  height="100px"></td>
+                                                  <td></td>
+                                                  <td colspan="4" style="border-bottom: 2px dashed #f4f4f4;"><h3><strong>RISALAH RAPAT</strong></h3></td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="width: 30px;"></td>
+                                                    <td colspan="4"  style="border-bottom: 2px dashed #f4f4f4; "><h5><strong >NOMOR : </strong><strong id="nomor-surat" class="editable-text"></strong></h5></td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="width: 30px;padding-top: 20px;"></td>
+                                                  <td style="text-align: left;padding-left: 20px;">Hari/Tanggal</td>
+                                                  <td style="text-align: left;">:</td>
+                                                  <td style="text-align: left;"  class="editable-text" id="hari-tanggal-rapat" ></td>
+                                                  <td rowspan="4" style="width:120px;padding-top: 20px;"  class="editable-text" id="additional-info" ></td>
+                                                </tr>
+                                                <tr style="text-align: left;">
+                                                    <td></td>
+                                                    <td style="padding-left: 20px">Pukul</td>
+                                                    <td>:</td>
+                                                    <td  class="editable-text" id="Pukul-rapat" ></td>
+                                                </tr>
+                                                <tr style="text-align: left;">
+                                                    <td></td>
+                                                    <td style="padding-left: 20px">Tempat</td>
+                                                    <td>:</td>
+                                                    <td  class="editable-text" id="ruang-rapat"></td>
+                                                </tr>
+                                                <tr style="text-align: left;">
+                                                    <td></td>
+                                                    <td style="padding-left: 20px">Hal</td>
+                                                    <td>:</td>
+                                                    <td  class="editable-text" id="perihal-rapat"></td>
+                                                </tr>
+                                            </table>
+                                
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="">
+                                <div class="row m-b-xl">
+                                    <div class="col-sm-12">
+                                        <div class="invoice" style="padding-top: 0%;margin-top: 0%;margin-bottom: 0px;">
+                                            <header style="margin-top: 20px; margin-bottom: 20px;">
+                                                    <section style="max-width: 50%">
+                                                    <table style="width: 100%;">
+                                                        <tr>
+                                                            <td>Pimpinan Rapat</td>
+                                                            <td style="padding-left: 10px;">:</td>
+                                                            <td class="editable-text" id="nama-pimpinan-rapat" style="padding-left: 10px;"></td>
+                                                        </tr>
+                                                        <tr>
+                                                                <td>Hadir</td>
+                                                                <td style="padding-left: 10px;">:</td>
+                                                                <td style="padding-left: 10px;">Terlampir</td>
+                                                        </tr>
+                                                    </table>
+                                                    </section>
                     
+                                                    <section style="min-width: 50%; border-left: 2px solid #f4f4f4;">
+                                                        <table  style="width: 100%;">
+                                                            <tr>
+                                                                <td colspan="3" style="padding-left: 20px"><strong>Distribusi :</strong>
+                                                                    
+                                                                    <a class="btn btn-link pull-right add-item hide" type="button" style="padding: 0px;margin: 0px;" id="add-distribusi" ><i class="fa fa-plus"></i></a>
+                                                                    <a class="btn btn-link pull-right add-item hide" type="button" style="padding: 0px;margin: 0px;margin-right: 10px; color: red;" id="dell-distribusi" ><i class="fa fa-minus"></i></a>
+                                                                    <!-- <a class="btn btn-link pull-right add-item hide" type="button" style="padding: 0px;margin: 0px;" id="add-distribusi" data-target="#myModal6" data-toggle="modal"><i class="fa fa-plus"></i></a> -->
+                                                                    <!-- <div class="modal fade" id="myModal6" tabindex="-1" role="dialog"  aria-hidden="true">
+                                                                        <div class="modal-dialog " style="top:30%">
+                                                                            <div class="modal-content">
+                                                                                <div class="modal-body">
+                                                                                    <input type="text" placeholder="Tambah Tujuan" id="add-distribusi-input" class="form-control">
+                                                                                </div>
+                                                                                <div class="modal-footer">
+                                                                                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                                                                                    <button type="button" class="btn btn-primary" id="add-distribusi-button">Add</button>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div> -->
+                                                                </td>
+                                                            </tr>
+
+                                                        </table>
+                                                        <table id="table-distribusi" style="width: 100%;">
+                                                            
+                                                            <!-- <tr>
+                                                                <td style="padding-left: 20px">sdf</td>
+                                                                <td>sdf</td>
+                                                                <td>sdf</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td style="padding-left: 20px">sdf</td>
+                                                                <td>sdf</td>
+                                                                <td>sdf</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td style="padding-left: 20px">sdf</td>
+                                                                <td>sdf</td>
+                                                                <td>sdf</td>
+                                                            </tr> -->
+                                                        </table>
+                                                    </section>
+                                            </header>                    
+                                            <main>
+                                                <div style="text-align: center;"><h5><strong>Hasil Rapat</strong></h5></div>
+                                                <div style="text-align: left;margin-bottom: 30px;">Rapat dipimpin oleh. <strong  class="editable-text" id="nama-pimpinan-rapat2"></strong> dengan agenda pembahasan sbb : 
+                                                    <a class="btn btn-link pull-right add-item hide" type="button" style="padding: 0px;margin: 0px;" id="add-pembahasan" ><i class="fa fa-plus"></i></a>
+                                                <table style="width: 100%;margin-top: 20px;" id="container-perihal-rapat">
+                                                
+                                                </table>
+            
+                                                <div style="text-align: left;margin-top: 5px;">Total Nilai Selisih Persediaan s/d <strong id="full-day"></strong> adalah <strong id="total"></strong></div></div>
+            
+                                            </main>
+            
+                                            <div style="padding-top: 30px;padding-bottom: 10px;"><strong>Hal-hal yang menjadi perhatian:</strong></div>
+                                            
+                                            <table class="table-summary">
+                                                <thead>
+                                                    <th>No</th>
+                                                    <th>Komoditi</th>
+                                                    <th>Selisih Bulan <span id="bulan-lalu"></span></th>
+                                                    <th>Selisih Bulan <span id="bulan-ini"></span></th>
+                                                    <th>Trend Selisih (ton)</th>
+                                                    <th>Keterangan</th>
+                                                </thead>
+                                                <tbody id="table-perhatian-id" >
+                                                    <tr>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td><div class="summernote2"></div></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            <main>
+                                                <div style="text-align: left"><h5><strong>Hasil Rekonsiliasi</strong></h5></div>
+                                                <div style="text-align: left;margin-bottom: 10px;">Posisi persediaan fisik, administrasi bahan baku, setelah dilakukan rekonsiliasi</div>
+                                                
+                                                <table class="table-rekons">
+                                                    <thead>
+                                                        <tr>
+                                                            <th rowspan="2">No</th>
+                                                            <th rowspan="2">Bahan Baku</th>
+                                                            <th colspan="2">Persediaan per <span id="full-day2"></span></th>
+                                                            <th colspan="3">Selisih Persediaan</th>
+                                                        
+                                                        </tr>
+                                                        <tr>
+                                                            <th>Fisik</th>
+                                                            <th>Administrasi+ Outstanding TB/ BA</th>
+                                                            <th>Ton</th>
+                                                            <th>Inv. Value (Harga/Ton)</th>
+                                                            <th>Nilai  ( Rp. Milyar)</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="table-rekons-id">
+                                                        <tr>
+                                                            <td></td>
+                                                            <td></td>
+                                                            <td></td>
+                                                            <td></td>
+                                                            <td></td>
+                                                            <td></td>
+                                                            <td></td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </main>
+            
+                                            <div style="padding-top: 30px;padding-bottom: 10px;"><strong>Catatan :</strong></div>
+                                            
+                                            <table class="table-catatan" id= "table-catatan-id">
+                                          
+                                            </table>
+            
+                                            <main>
+                                                <div style="text-align: left;margin-bottom: 10px;"><h5>Dari hasil Rekonsiliasi tersebut diatas dapat disampaikan hal-hal sebagai berikut : <a class="btn btn-link pull-right add-item hide" type="button" style="padding: 0px;margin: 0px;" id="add-summary"><i class="fa fa-plus"></i></a></h5> </div>
+                                                <table style="width: 100%;margin-top: 20px;">
+                                                    <tr class="row-summary">
+                                                        <td>
+                                                            <div style="text-align: left;margin-top: 10px;margin-bottom: 10px;"><div style="float:left; width:1%" class="ind-summary">1.</div>Stok fisik bahan baku sudah sesuai dengan catatan administrasi kecuali yang bertanda bintang :</div>
+                                                            <table class="table-columns" style="padding-bottom: ;">
+                                                                <tbody>
+                                                                    <tr id="bertanda-bintang-table">
+                                                                        
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                                <table style="width: 100%;" id="container-summary-rapat">
+                                                    
+                                                </table>
+                                            </main>
+            
+                                            <div style="text-align: left;margin-top: 40px;margin-bottom:30px">Demikian, rapat ditutup dengan ucapan terimakasih.</div>
+                                            
+                                            <table class="table-sub" style="margin-left: 0%;">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td class="td" style="width: 50%;">
+                                                                <table class="table-sub">
+                                                                    <tr>
+                                                                        <td></td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>Notulis</td>
+                                                                    </tr>
+                                                                    <tr  style="height: 80px;">
+                                                                        <td></td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td  class="editable-text" id="notulis"></td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                            <td class="td" style="width: 50%;">
+                                                                <table class="table-sub">
+                                                                    <tr>
+                                                                        <td>Mengetahui,</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td  class="editable-text" id="penanggung-jawab-rapat"></td>
+                                                                    </tr>
+                                                                    <tr style="height: 80px;">
+                                                                        <td></td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td  class="editable-text" id="nama-penanggung-jawab-rapat"></td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                 </div>
                 <div class="panel-footer text-right">
-                    <button class="btn btn-success " type="button"><i class="fa fa-print"></i> <span class="bold">Print</span></button>
+                    <button class="btn btn-link " type="button" id="edit-button"><i class="fa fa-edit"></i> <span class="bold">Edit</span></button>
+                    <button class="btn btn-link " type="button" id="save-button"><i class="fa fa-save"></i> <span class="bold">Save</span></button>
+                    <button class="btn btn-success hide " type="button" id="print-button"><i class="fa fa-print"></i> <span class="bold">Print</span></button>
                 </div>
             </div>
         </div>
@@ -45,4 +412,395 @@
 {% endblock %}
 
 {% block js %}
+<script src="{% static 'dependencies/summernote/dist/summernote.js'%}"></script>
+<script>
+    
+
+    $( "#edit-button" ).click(function() {
+
+        $( ".add-item" ).each(function() {
+            if ($(this).hasClass("hide")){
+                $(this).removeClass("hide");
+            }else{
+            }
+        });
+
+        $( ".delete-item-bahasan" ).each(function() {
+            if ($(this).hasClass("hide")){
+                $(this).removeClass("hide");
+            }else{
+            }
+        });
+        $( ".delete-item-summary" ).each(function() {
+            if ($(this).hasClass("hide")){
+                $(this).removeClass("hide");
+            }else{
+            }
+        });
+        
+
+        $( ".editable-text" ).each(function() {
+            if ($( this ).has("input").length == 0){
+                    var text = $( this ).text();
+                    $( this ).html('<input style="background-color : #c9fff4; text-align: center" type="text" placeholder= "'+text+'" value="'+text+'">');
+                 }
+        });
+        
+        $( ".bintang" ).each(function() {
+            if ($( this ).has("input").length == 0){
+                    var text = $( this ).html();
+                    if (text == "*"){
+                        $( this ).html('<input type="checkbox" value="" checked="true">');
+                    }
+                    else{
+                        $( this ).html('<input type="checkbox" value="" >');
+                    }
+                    
+                 }
+        });
+
+        $('.summernote2').summernote({airMode: true});
+
+    });
+    $( "#save-button" ).click(function() {
+
+        $('.summernote2').each(function() {
+            
+            $(this).summernote('destroy');
+        });
+
+        $( ".add-item" ).each(function() {
+            if ($(this).hasClass("hide")){
+                
+            }else{
+                $(this).addClass("hide");
+                
+            }
+
+        });
+
+        $( ".delete-item-bahasan" ).each(function() {
+            if ($(this).hasClass("hide")){
+                
+            }else{
+                $(this).addClass("hide");
+                
+            }
+
+        });
+        
+        $( ".delete-item-summary" ).each(function() {
+            if ($(this).hasClass("hide")){
+                
+            }else{
+                $(this).addClass("hide");
+                
+            }
+
+        });
+
+        $( ".editable-text" ).each(function() {
+            if ($( this ).has("input").length == 1){
+                var val = $( this ).find( "input" ).val();
+                $( this ).html(val);
+            }
+        });
+
+        $( ".bintang" ).each(function() {
+            if ($( this ).has("input").length ==1){
+                    if ($( this ).find( "input" ).is(':checked')){
+                        $( this ).html("*");
+                    }
+                    else{
+                        $( this ).html("");
+                    }
+                    
+                 }
+        });
+        
+        var data_update = {}
+        data_update =   {
+                        'csrfmiddlewaretoken': '{{ csrf_token }}',
+                        "bulan" : $("#bulan-ini").html(),
+                        "nomor-surat" : $("#nomor-surat").html(),
+                        "hari-tanggal-rapat" :$("#hari-tanggal-rapat").html(),
+                        "additional-info" :$("#additional-info").html(),
+                        "Pukul-rapat" :$("#Pukul-rapat").html(),
+                        "ruang-rapat" :$("#ruang-rapat").html(),
+                        "perihal-rapat" :$("#perihal-rapat").html(),
+
+                        "nama-pimpinan-rapat" :$("#nama-pimpinan-rapat").html(),
+                        "nama-pimpinan-rapat2" :$("#nama-pimpinan-rapat2").html(),
+                        "total" :$("#total").html(),
+                        "notulis" :$("#notulis").html(),
+                        "penanggung-jawab-rapat" :$("#penanggung-jawab-rapat").html(),
+                        "nama-penanggung-jawab-rapat" :$("#nama-penanggung-jawab-rapat").html(),
+                        "table-catatan-id" :$("#table-catatan-id").html(),
+                        "table-rekons-id" :$("#table-rekons-id").html(),
+                        "table-perhatian-id" :$("#table-perhatian-id").html(),
+                        "bertanda-bintang-table" :$("#bertanda-bintang-table").html(),
+
+                        "container-perihal-rapat" :$("#container-perihal-rapat").html(),
+                        "container-summary-rapat" :$("#container-summary-rapat").html(),
+                        "distribusi" : $("#table-distribusi").html()
+
+                        }
+    
+        $.ajax({
+                    type:'POST',
+                    url:'/updateNotulensi/',
+                    data: data_update,
+                    success:function(json){
+                        var data = JSON.parse(json);
+                        if (data.data.length != 0){
+
+                            // alert(data)
+                        }   
+                        //console.log(data.data[0]);
+                    },
+                    error : function(xhr,errmsg,err) {
+                        
+                }
+            });
+    });
+    
+    $( "#dell-distribusi" ).click(function(){
+
+        var col = Math.trunc(($( "#table-distribusi" ).find("td").length - 1) / 8);
+        var row = Math.trunc(($( "#table-distribusi" ).find("td").length-1) % 8 );
+        
+        $( "#table-distribusi" ).find("tr:eq("+row.toString()+")").find("td:eq("+col.toString()+")").remove()
+        if ($( "#table-distribusi" ).find("tr:eq("+row.toString()+")").is(':empty')){
+            $( "#table-distribusi" ).find("tr:eq("+row.toString()+")").remove()
+        }
+    });
+
+    $("#add-pembahasan").click(function() {
+        var ind_distribusi = $( "#container-perihal-rapat" ).find("tr").length;
+        $("#container-perihal-rapat").append('<tr ><td  style="padding-left: 20px; padding-bottom : 10px"><div style="float:left; width:1%" ><span >&#9679;</span></div><div style="float:left; width : 95%" ><div class = "summernote2" ">sdfdsfdsf</div></div><a class="delete-item-bahasan"><i class="fa fa-trash" style="width: 30px;float:left; margin-left : 5px; margin-top: 5px; color : red"></i></a></td></tr>')
+        
+        $('.summernote2').summernote({
+            airMode: true,
+        });
+    })
+
+    $("#add-summary").click(function() {
+        var ind_distribusi = $( "#container-summary-rapat" ).find(".row-summary").length +2;
+        $("#container-summary-rapat").append('<tr class="row-summary"><td  style="padding-top: 10px; padding-bottom : 10px"><div style="float:left; width:1%" class="ind-summary">'+(ind_distribusi).toString()+'. </div><div style="float:left; width : 95%" ><div class = "summernote2" ">sdfdsfdsf</div></div><a class="delete-item-summary"><i class="fa fa-trash" style="width: 30px;float:left; margin-left : 5px; margin-top: 5px; color : red"></i></a></td></tr>')
+        
+        $('.summernote2').summernote({
+            airMode: true,
+        });
+    })
+
+
+    $( "#add-distribusi" ).click(function() {
+        var ind_distribusi = $( "#table-distribusi" ).find("td").length;
+        if (ind_distribusi < 40){
+        
+            if (ind_distribusi < 8){
+                // $("#table-distribusi").append('<tr><td  style="padding-left: 20px;"><div style="float:left; width:20px">'+(ind_distribusi + 1).toString()+'. </div><div class = "editable-text" style="float:left"><input style="background-color : #c9fff4; text-align: center" type="text" placeholder= "isi teks" value=""></div><a class="delete-item-bahasan"><i class="fa fa-trash" style="width: 30px;float:left; margin-left : 5px; margin-top: 5px; color : red"></i></a></td></tr>')
+                $("#table-distribusi").append('<tr><td  style="padding-left: 20px;"><div style="float:left; width:20px">'+(ind_distribusi + 1).toString()+'. </div><div class = "editable-text" style="float:left"><input style="background-color : #c9fff4; text-align: center" type="text" placeholder= "isi teks" value=""></div></td></tr>')
+            }
+            else{
+                var idx = ind_distribusi % 8 ;
+                // $("#table-distribusi").find("tr")[idx].append('<td  style="padding-left: 20px;"><div style="float:left; width:20px">'+ind_distribusi.toString()+'. </div><div class = "editable-text" style="float:left"><input style="background-color : #c9fff4; text-align: center" type="text" placeholder= "isi teks" value=""></div><a class="delete-item"><i class="fa fa-trash" style="width: 30px;float:left; margin-left : 5px; margin-top: 5px; color : red"></i></a></td>')
+                // $("#table-distribusi").find("tr:eq("+idx.toString()+")").append('<td  style="padding-left: 20px;"><div style="float:left; width:20px">'+(ind_distribusi + 1).toString()+'. </div><div class = "editable-text" style="float:left"><input style="background-color : #c9fff4; text-align: center" type="text" placeholder= "isi teks" value=""></div><a class="delete-item"><i class="fa fa-trash" style="width: 30px;float:left; margin-left : 5px; margin-top: 5px; color : red"></i></a></td>')
+                $("#table-distribusi").find("tr:eq("+idx.toString()+")").append('<td  style="padding-left: 20px;"><div style="float:left; width:20px">'+(ind_distribusi + 1).toString()+'. </div><div class = "editable-text" style="float:left"><input style="background-color : #c9fff4; text-align: center" type="text" placeholder= "isi teks" value=""></div></td>')
+                
+            }
+        }
+    })
+
+    
+
+    $(document).on("click", ".delete-item-bahasan", function() {
+        $( this ).closest("tr").remove();
+        });
+        
+    $(document).on("click", ".delete-item-summary", function() {
+        $( this ).closest("tr").remove();
+
+        $( "#container-summary-rapat" ).find(".row-summary").each(function(ind, elemen){
+            $(elemen).find(".ind-summary").html((ind + 1).toString() +".")
+        });
+    });
+    
+</script>
+<script>
+    $('.summary').click(function(e) {
+                $.ajax({
+                    type:'POST',
+                    url:'/getNotulensi/',
+                    data:{
+                        'csrfmiddlewaretoken': '{{ csrf_token }}',
+                        "data" : $(this).find("a").html(),
+                    },
+                    success:function(json){
+                        var data = JSON.parse(json);
+                        if (data.data.length != 0){
+
+                            $("#title").html("NOTULENSI ( "+ data.bulan+ " " + data.tahun+" )")
+                            $("#full-day").html(data.tanggal + " " + data.bulan+ " " + data.tahun)
+                            $("#full-day2").html(data.tanggal + " " + data.bulan+ " " + data.tahun)
+
+                            $("#bulan-lalu").html(data.bulan_lalu+ " " + data.tahun)
+                            $("#bulan-ini").html(data.bulan+ " " + data.tahun)
+
+                            $("#nomor-surat").html(data.data.nomor);
+                            $("#hari-tanggal-rapat").html(data.data.hari_tanggal)
+                            $("#additional-info").html(data.data.info)
+                            $("#Pukul-rapat").html(data.data.pukul)
+                            $("#ruang-rapat").html(data.data.ruang)
+                            $("#perihal-rapat").html(data.data.hal)
+
+                            $("#nama-pimpinan-rapat").html(data.data.pimpinan_rapat)
+                            $("#nama-pimpinan-rapat2").html(data.data.pimpinan_rapat)
+                            $("#total").html(data.data.total + " M")
+
+                            $("#notulis").html(data.data.notulis)
+                            $("#penanggung-jawab-rapat").html(data.data.jabatan)
+                            $("#nama-penanggung-jawab-rapat").html(data.data.nama_pimpinan)
+                            $("#table-catatan-id").html(data.data.catatan)
+                            $("#table-rekons-id").html(data.data.rekons)
+                            $("#table-perhatian-id").html(data.data.perhatian)
+                            $("#bertanda-bintang-table").html(data.data.bertanda_bintang)
+
+                            $("#container-perihal-rapat").html(data.data.perihal)
+                            $("#container-summary-rapat").html(data.data.hal_disampaikan)
+
+                            $("#table-distribusi").html(data.data.distribusi)
+                        }   
+                        //console.log(data.data[0]);
+                    },
+                    error : function(xhr,errmsg,err) {
+                        
+                }
+                });
+            e.preventDefault()
+            $(this).closest(".dropdown").removeClass( "open" );
+            }
+        )
+</script>
+
+<!-- <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script> -->
+<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script> -->
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.0.272/jspdf.debug.js"></script>
+
+<!-- <script type="text/javascript" src="js/html2canvas.js"></script>
+<script type="text/javascript" src="js/jquery.plugin.html2canvas.js"></script> -->
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.debug.js" integrity="sha384-NaWTHo/8YCBYJ59830LTz/P4aQZK1sS0SneOgAvhsIl3zBu8r9RevNg5lHCHAuQ/" crossorigin="anonymous"></script>
+<script>
+    // $( "#print-button" ).click(function() {
+    //     function print() {
+    //             const filename  = 'ThisIsYourPDFFilename.pdf';
+
+    //             html2canvas(document.querySelector('#all-content')).then(canvas => {
+    //                 let pdf = new jsPDF('p', 'mm', 'a4');
+    //                 pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 211, 298);
+    //                 pdf.save(filename);
+    //             });
+    //         }
+    //     print();
+    // });
+
+//     $('#print-button').click(function(){
+//     html2canvas($('#all-content'), 
+//     {
+//       onrendered: function (canvas) {
+//         var a = document.createElement('a');
+//         // toDataURL defaults to png, so we need to request a jpeg, then convert for file download.
+//         a.href = canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
+//         a.download = 'somefilename.jpg';
+//         a.click();
+//       }
+//     });
+//   });
+
+//   $("#print-button").click(function() {
+//       alert(1)
+//         html2canvas($("body"), {
+//           onrendered: function(canvas) {
+//             saveAs(canvas.toDataURL(), 'canvas.png');
+//           }
+//         });
+//       });
+
+//       function saveAs(uri, filename) {
+//         var link = document.createElement('a');
+//         if (typeof link.download === 'string') {
+//           link.href = uri;
+//           link.download = filename;
+
+//           //Firefox requires the link to be in the body
+//           document.body.appendChild(link);
+
+//           //simulate click
+//           link.click();
+
+//           //remove the link when done
+//           document.body.removeChild(link);
+//         } else {
+//           window.open(uri);
+//         }
+//       }
+
+    $("#print-button").click(function () {
+
+        // var w = document.getElementById("all-content").offsetWidth;
+        // var h = document.getElementById("all-content").offsetHeight;
+        // // alert(w,h)
+        // html2canvas(document.getElementById("all-content")).then(function(canvas) {
+        //     var img1 = canvas.toDataURL("image/jpeg", 1);
+        //     document.body.appendChild(canvas)
+        //     let doc = new jsPDF('l', 'px', 'a4',);
+        // doc.addImage( img1, 'PNG', 0, 0, w, h);
+        // doc.save("file.pdf");
+        // });
+
+        // html2canvas($("#all-content"), {
+        //     onrendered: function(canvas) {         
+        //         var imgData = canvas.toDataURL(
+        //             'image/png');              
+        //         var doc = new jsPDF('p', 'mm');
+        //         doc.addImage(imgData, 'PNG', 10, 10);
+        //         doc.save('sample-file.pdf');
+        //     }
+        // });
+
+        // var w = document.getElementById("all-content").offsetWidth;
+        // var h = document.getElementById("all-content").offsetHeight;
+        // alert(w)
+        // html2canvas(document.getElementById("all-content"), {
+        // dpi: 300, // Set to 300 DPI
+        // scale: 3, // Adjusts your resolution
+        // onrendered: function(canvas) {
+        //     var img = canvas.toDataURL("image/jpeg", 1);
+        //     var doc = new jsPDF('L', 'px', [w, h]);
+        //     doc.addImage(img, 'JPEG', 0, 0, w, h);
+        //     doc.save('sample-file.pdf');
+        // }
+        // });
+    
+
+
+        // jQuery('#all-content').html2canvas({
+        //     onrendered: function( canvas ) {
+        //         var img1 = canvas.toDataURL('image/png');
+        //     }
+        // });
+       
+
+        //  let doc = new jsPDF('p', 'in', 'a4',);
+        //  doc.internal.scaleFactor = 30;
+        //  doc.addHTML($('#all-content')[0], function () {
+        //      doc.save('testpoc.pdf');
+        //  });
+
+         
+     });
+</script>
 {% endblock %}

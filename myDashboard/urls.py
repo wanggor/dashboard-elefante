@@ -36,6 +36,7 @@ urlpatterns = [
     url(r'^daftar_material/$', views.daftar_material, name='daftar_material'),
     url(r'^daftar_mvt/$', views.daftar_mvt, name='daftar_mvt'),
     url(r'^delete_data/$', views.delete_data, name='delete_data'),
+    url(r'^daftar_harga/$', views.daftar_harga, name='daftar_harga'),
 
     url(r'^edit_profile/$', accounts_views.edit_profile, name='editProfile'),
     url(r'^login/$', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
@@ -78,8 +79,16 @@ urlpatterns = [
     url(r'^upload_plan/$', views.upload_plan, name='upload_saldo'),
     url(r'^upload_material/$', views.upload_material, name='upload_material'),
     url(r'^upload_mvt/$', views.upload_mvt, name='upload_mvt'),
+    url(r'^upload_harga/$', views.upload_harga, name='upload_harga'),
+    
 
     url(r'^upload_files/$', views.upload_files, name='upload_files'),
     url(r'^check_upload_laporan/$', views.check_upload_laporan, name='check_upload_laporan'),
+
+    url(r'^getTableData/$', views.getTableData, name='getTableData'),
+    url(r'^getNotulensi/$', views.getNotulensi, name='getNotulensi'),
+
+    url(r'^updateNotulensi/$', views.updateNotulensi, name='updateNotulensi'),
+    
 
 ]

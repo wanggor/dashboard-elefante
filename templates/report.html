@@ -91,7 +91,7 @@
                                                                 $('thead').css({"cursor": "pointer","text-align" : "center"});
                                                                 
                                                             }
-                                                            if ( ['Saldo Awal',"Sisa Administrasi", 'Pemakaian', 'Kedatangan','Persediaan administrasi', "Total Administrasi","Stock Opname","Stock Fisik"].includes(cellData) ||  $(td).has("div").length >0 ) {
+                                                            if ( ['Saldo Awal',"Sisa Administrasi","Selisih Per Bulan", 'Pemakaian', 'Kedatangan','Persediaan administrasi', "Total Administrasi","Stock Opname","Stock Fisik"].includes(cellData) ||  $(td).has("div").length >0 ) {
                                                                 
                                                                 if ($(td).has("div").length >0){
                                                                     if ($(td).find("div").text() == ""){
@@ -163,7 +163,7 @@
                     
                                                                 // console.log(cellData,"Jumlah Stock Fisik (Tonase)", $(td).text().normalize("NFKC") == "Jumlah Stock Fisik (Tonase)".normalize("NFKC"));
                                                                 
-                                                                if (["Total Stock Tonase","Total Stock Fisik (Tonase)","Total Stock Value",'Saldo Sebelumnya',"Produksi Sendiri", 'Total Saldo Awal', 'Total Kedatangan','Total Pemakaian', "Jumlah Administrasi","Jumlah Saldo Tersisa"].includes(cellData)){
+                                                                if (["Total Stock Tonase","Total Stock Fisik (Tonase)","Total Stock Value",'Saldo Sebelumnya',"Produksi Sendiri","Saldo Bulan Sebelumnya", 'Total Saldo Awal', 'Total Kedatangan','Total Pemakaian', "Jumlah Administrasi","Jumlah Saldo Tersisa"].includes(cellData)){
                                                                     $(td).css({"padding-left": "2%"});
                                                                 }else{
                                                                     $(td).css({"padding-left": "3%"});
@@ -245,7 +245,7 @@
                                                                     $('thead').css({"cursor": "pointer","text-align" : "center"});
                                                                     
                                                                 }
-                                                                if ( ['Saldo Awal',"Sisa Administrasi", 'Pemakaian', 'Kedatangan','Persediaan administrasi', "Total Administrasi","Stock Opname","Stock Fisik"].includes(cellData) ||  $(td).has("div").length >0 ) {
+                                                                if ( ['Saldo Awal',"Sisa Administrasi","Selisih Per Bulan", 'Pemakaian', 'Kedatangan','Persediaan administrasi', "Total Administrasi","Stock Opname","Stock Fisik"].includes(cellData) ||  $(td).has("div").length >0 ) {
                                                                     
                                                                     if ($(td).has("div").length >0){
                                                                         if ($(td).find("div").text() == ""){
@@ -317,7 +317,7 @@
                         
                                                                     // console.log(cellData,"Jumlah Stock Fisik (Tonase)", $(td).text().normalize("NFKC") == "Jumlah Stock Fisik (Tonase)".normalize("NFKC"));
                                                                     
-                                                                    if (["Jumlah Stock Tonase","Total Stock Fisik (Tonase)","Jumlah Stock Value",'Saldo Sebelumnya',"Produksi Sendiri", 'Jumlah Saldo Awal', 'Jumlah Kedatangan','Jumlah Pemakaian', "Jumlah Administrasi","Jumlah Saldo Tersisa"].includes(cellData)){
+                                                                    if (["Jumlah Stock Tonase","Total Stock Fisik (Tonase)","Jumlah Stock Value",'Saldo Sebelumnya',"Produksi Sendiri","Saldo Bulan Sebelumnya", 'Jumlah Saldo Awal', 'Jumlah Kedatangan','Jumlah Pemakaian', "Jumlah Administrasi","Jumlah Saldo Tersisa"].includes(cellData)){
                                                                         $(td).css({"padding-left": "2%"});
                                                                     }else{
                                                                         $(td).css({"padding-left": "3%"});
