@@ -41,7 +41,6 @@ urlpatterns = [
     url(r'^edit_profile/$', accounts_views.edit_profile, name='editProfile'),
     url(r'^login/$', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
     url(r'^logout/$', auth_views.LogoutView.as_view(), name='logout'),
-    url(r'^chart/$', views.chart,name='chart'),
 
     url(r'^password_change/$', auth_views.PasswordChangeView.as_view(template_name='password_change.html'),
         name='password_change'),

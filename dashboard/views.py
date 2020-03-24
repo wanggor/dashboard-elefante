@@ -140,10 +140,6 @@ def reset_password(request):
     context = {}
     return render(request,"reset_password.html",context)
 
-def chart(request):
-    context = {}
-    context["data"] = get_chart_data()
-    return render(request,"chart.html",context)
 
 def get_data_position(request):
     t = random.random()
