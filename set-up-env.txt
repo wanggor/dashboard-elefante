@@ -35,3 +35,59 @@
 # running without nginx
 28. sudo ufw allow 8000
 29. python manage.py runserver 0.0.0.0:8000
+
+30. gunicorn --bind 0.0.0.0:8000 myDashboard.wsgi
+31. deactivate
+
+32. sudo nano /etc/systemd/system/gunicorn.service
+
+"
+[Unit]
+Description=gunicorn daemon
+After=network.target
+
+[Service]
+User=wanggor
+Group=www-data
+WorkingDirectory=/home/wanggor/myproject/myDashboard
+ExecStart=/home/wanggor/myproject/myprojectenv/bin/gunicorn --access-logfile - --workers 3 --bind unix:/home/wanggor/myproject/myDashboard/myDashboard.sock myDashboard.wsgi:application
+
+[Install]
+WantedBy=multi-user.target
+
+"
+
+33. sudo systemctl start gunicorn
+34. sudo systemctl enable gunicorn
+
+35. sudo systemctl status gunicorn
+36. sudo journalctl -u gunicorn
+
+37. sudo systemctl daemon-reload
+38. sudo systemctl restart gunicorn
+
+39. sudo nano /etc/nginx/sites-available/myproject
+
+"
+server {
+    listen 80;
+    server_name 134.122.117.16;
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location /static/ {
+        root /home/wanggor/myproject/myDashboard/;
+    }
+
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:/home/wanggor/myproject/myDashboard/myDashboard.sock;
+    }
+}
+
+"
+
+40. sudo ln -s /etc/nginx/sites-available/myproject /etc/nginx/sites-enabled
+41. sudo nginx -t
+42. sudo systemctl restart nginx
+43. sudo ufw delete allow 8000
+44. sudo ufw allow 'Nginx Full'

@@ -310,3 +310,145 @@ def check_upload_laporan(request):
         else:
             cancel_data_upload(request)
         return HttpResponse("Sucsess")
+
+#TracnTrace
+
+def tracking(request):
+    # DataSensor.objects.all().delete()
+    data = {}
+    data["data"] = get_unit_data()
+    data["histori"] = get_unit_data_history()
+    data["histori"] = {}
+    data["route"] = {}
+
+    with open("data/route_1.geojson") as f:
+        data["route"][0] = json.load(f)
+    
+    with open("data/route_2.geojson") as f:
+        data["route"][1] = json.load(f)
+
+    with open("data/route_3.geojson") as f:
+        data["route"][2] = json.load(f)
+    
+    data["route_appearence"] = {}
+    col_pick = MplColorHelper("Paired", 0, 3)
+    for i in range(3):
+        data["route_appearence"][i] = {
+            "color" : col_pick.get_hex(i),
+            "transparan" : 0.8,
+            "line-width" : 5
+        }
+    # data["route-appearence"][0] = {"color" : ""}
+    return render(request,"tracking.html",data)
+
+def get_data(request):
+    data = {}
+    data["data"] = get_unit_data()
+    data["unit"] = list(Unit.objects.all().values("name","current_latitude", "current_longitude","current_directions"))
+    return HttpResponse(json.dumps(data, default=default))
+
+def get_current_data(request):
+    unit = list(Unit.objects.all().values("id","current_latitude", "current_longitude","current_directions"))
+    data = {}
+    data["data"] = unit
+    return HttpResponse(json.dumps(data, default=default))
+
+
+def upload(request):
+    if request.method == 'POST':
+        time_save = 1
+        data = json.loads(request.POST["data"])
+        user_name = data["id"]
+        name = data["name"]
+        lat = float(data["latitude"])
+        lon = float(data["longitude"])
+        alt = float(data["altitude"])
+        acc = float(data["gps_accuracy"])
+        t   = datetime.datetime.fromtimestamp(int(data["tst"]))
+        
+        user = [i["id_user"] for i in list(Unit.objects.values("id_user"))]
+        if user_name not in user:
+            Unit.objects.create(
+                id_user             = user_name,
+                name                = name,
+                kontak              = "None",
+                current_latitude    = lat,
+                current_longitude   = lon,
+                accuracy = acc,
+                current_directions  = 0,
+                time_step       = 0,
+                last_accumulate     = t,
+                current_speed = 0
+            )
+        
+        poss_before = list(Unit.objects.filter(id_user = user_name).values("current_latitude", "current_longitude", "last_accumulate","time_step"))[0]
+        lat_before  = float(poss_before["current_latitude"])
+        long_before = float(poss_before["current_longitude"])
+        t_0         = (t - (poss_before["last_accumulate"])).total_seconds()
+
+        
+        if t_0 != 0:
+            length = getPathLength(lat_before,long_before,lat, lon)
+            direc  = (180 + calculateBearing(lat_before,long_before,lat, lon)) % 360
+            speed  = length/t_0
+
+            if speed != 0:
+                time_step = poss_before["time_step"] + t_0
+            else:
+                time_step = poss_before["time_step"]
+
+            Unit.objects.filter(id_user = user_name).update(
+                current_latitude    = lat,
+                current_longitude   = lon,
+                accuracy            = acc,
+                current_directions  = direc,
+                time_step           = time_step,
+                last_accumulate     = t,
+                current_speed       = speed
+            )
+
+            unit_instace = Unit.objects.get(id_user = user_name)
+            time_sensor = sorted([i["time"] for i in list(DataSensor.objects.filter(unit = unit_instace).values("time"))])
+            # if time_sensor != [] :
+            #     if float((t-time_sensor[-1]).total_seconds()) > time_save:
+            #         poss_before_sensor = list(DataSensor.objects.filter(unit = unit_instace).filter(time = time_sensor[-1]).values("latitude", "longitude"))[0]
+            #         lat_before_sensor  = float(poss_before_sensor["latitude"])
+            #         long_before_sensor = float(poss_before_sensor["longitude"])
+
+            #         length_sensor = getPathLength(lat_before_sensor,long_before_sensor,lat, lon)
+
+            #         DataSensor.objects.create(
+            #             latitude        = lat,
+            #             longitude       = lon,
+            #             directions      = direc,
+            #             speed           = speed,
+            #             distance        = length_sensor,
+            #             time            = t,
+            #             time_step       = time_step,
+            #             unit            = unit_instace,
+            #             accuracy        = acc
+            #         )
+
+            #         Unit.objects.filter(id_user = user_name).update(time_step = 0)
+            #     else:
+            #         pass
+            # else:
+                # DataSensor.objects.create(
+                #     latitude        = lat,
+                #     longitude       = lon,
+                #     directions      = direc,
+                #     speed           = speed,
+                #     distance        = length,
+                #     time            = t,
+                #     time_step       = time_step,
+                #     unit            = unit_instace,
+                #     accuracy = 0
+                # )
+                # Unit.objects.filter(id_user = user_name).update(time_step = 0)
+        return HttpResponse("Sucsess")
+
+
+def visualisai(request):
+    data = {}
+    data["data"] = {}
+    return render(request,"visualisasi.html",data)

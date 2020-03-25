@@ -25,8 +25,8 @@ SECRET_KEY = '^d3oml7y527u$8xof#hd@)i41k8hltgwn%i4783$jqy@s#y+d1'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# ALLOWED_HOSTS = []
-ALLOWED_HOSTS = ["134.122.117.16"]
+ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = ["134.122.117.16"]
 
 
 # Application definition
@@ -80,23 +80,23 @@ WSGI_APPLICATION = 'myDashboard.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'petrodatabase',
-        'USER': 'elefante',
-        'PASSWORD': 'Elefante.123',
-        'HOST': 'localhost',
-        'PORT': '',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'petrodatabase',
+#         'USER': 'elefante',
+#         'PASSWORD': 'Elefante.123',
+#         'HOST': 'localhost',
+#         'PORT': '',
+#     }
+# }
 
 
 # Password validation
@@ -141,7 +141,7 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static/'),
 ]
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static_root/')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static_root')
 
 #redirect after login
 LOGIN_REDIRECT_URL = 'home'

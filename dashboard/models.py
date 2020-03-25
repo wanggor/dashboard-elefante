@@ -138,3 +138,35 @@ class Notulensi(models.Model):
 
 
 
+#TrackNtrace
+
+class Unit(models.Model):
+    id_user             = models.CharField(max_length=100)
+    name                = models.CharField(max_length=100)
+    kontak              = models.CharField(max_length=100)
+    current_latitude    = models.FloatField()
+    current_longitude   = models.FloatField()
+    current_directions  = models.FloatField()
+    current_speed       = models.FloatField()
+    time_step           = models.FloatField()
+    accuracy            = models.FloatField()
+    last_accumulate     = models.DateTimeField()
+
+class DataAnalize(models.Model):
+    cost_estimate   = models.FloatField()
+    cost_real       = models.FloatField()
+    revenue         = models.FloatField()
+    score           = models.FloatField()
+    time            = models.DateTimeField()
+    unit            = models.ForeignKey(Unit, on_delete=models.PROTECT)
+
+class DataSensor(models.Model):
+    latitude        = models.FloatField()
+    longitude       = models.FloatField()
+    directions      = models.FloatField()
+    speed           = models.FloatField()
+    distance        = models.FloatField()
+    accuracy        = models.FloatField()
+    time_step       = models.FloatField()
+    time            = models.DateTimeField()
+    unit            = models.ForeignKey(Unit, on_delete=models.PROTECT)

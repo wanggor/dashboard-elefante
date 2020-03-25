@@ -37,7 +37,10 @@ urlpatterns = [
     url(r'^daftar_mvt/$', views.daftar_mvt, name='daftar_mvt'),
     url(r'^delete_data/$', views.delete_data, name='delete_data'),
     url(r'^daftar_harga/$', views.daftar_harga, name='daftar_harga'),
-
+    
+    url(r'^tracking/$', views.tracking,name='tracking'),
+    url(r'^visualisai/$', views.visualisai,name='add_rute'),
+    
     url(r'^edit_profile/$', accounts_views.edit_profile, name='editProfile'),
     url(r'^login/$', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
     url(r'^logout/$', auth_views.LogoutView.as_view(), name='logout'),
@@ -47,6 +50,10 @@ urlpatterns = [
     url(r'^password_change_done/$', auth_views.PasswordChangeDoneView.as_view(template_name='password_change_done.html'),
         name='password_change_done'),
     
+    #trackntrace
+    url(r'^get_data/$', views.get_data,name='get_data'),
+    url(r'^get_current_data/$', views.get_current_data,name='get_data'),
+    url(r'^upload_data/$', views.upload,name='upload_data'),
 
     # lupa password
     url(r'^reset_password/$',

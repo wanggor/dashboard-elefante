@@ -7,6 +7,8 @@ import calendar
 from io import StringIO
 import json
 import re
+import random 
+import math
 
 def thous(x, sep=',', dot=','):
     num, _, frac = str(x).partition(dot)
@@ -1171,6 +1173,155 @@ def get_chart_data():
 
     return output
 
+#tracknTrace
+def getPathLength(lat1,lng1,lat2,lng2):
+    '''calculates the distance between two lat, long coordinate pairs'''
+    R = 6371000 # radius of earth in m
+    lat1rads = math.radians(lat1)
+    lat2rads = math.radians(lat2)
+    deltaLat = math.radians((lat2-lat1))
+    deltaLng = math.radians((lng2-lng1))
+    a = math.sin(deltaLat/2) * math.sin(deltaLat/2) + math.cos(lat1rads) * math.cos(lat2rads) * math.sin(deltaLng/2) * math.sin(deltaLng/2)
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+    d = R * c
+    return d
 
+def calculateBearing(lat1,lng1,lat2,lng2):
+    '''calculates the azimuth in degrees from start point to end point'''
+    startLat = math.radians(lat1)
+    startLong = math.radians(lng1)
+    endLat = math.radians(lat2)
+    endLong = math.radians(lng2)
+    dLong = endLong - startLong
+    dPhi = math.log(math.tan(endLat/2.0+math.pi/4.0)/math.tan(startLat/2.0+math.pi/4.0))
+    if abs(dLong) > math.pi:
+         if dLong > 0.0:
+             dLong = -(2.0 * math.pi - dLong)
+         else:
+             dLong = (2.0 * math.pi + dLong)
+    bearing = (math.degrees(math.atan2(dLong, dPhi)) + 360.0) % 360.0
+    return bearing
+
+def get_unit_data():
+    data_unit  = list(Unit.objects.all().values())
+    output = {}
+    data = list(DataSensor.objects.all().dates("time", 'month', order='DESC'))
+    if len(data) > 0:
+        date = data[0]
+        month = date.month
+        year = date.year
+        data = pd.DataFrame(list(DataSensor.objects.filter(time__iso_year=year).filter(time__month=month).values("unit_id", "accuracy", "latitude", "longitude", "speed","distance","directions","time", "time_step")))
+        total_dis = [ data[data["unit_id"] == i["id"]]["distance"].sum() / 1000 for i in data_unit]
+        total_time = [ data[data["unit_id"] == i["id"]]["time_step"].sum() / 3600  for i in data_unit]
+
+        data = {
+            "" : ['<div style="text-align: center"><a ><i class="fa fa-plus-circle" ></i><a/><div>' for i in data_unit],
+            "Unit" : [i["id_user"] for i in data_unit],
+            "Penanggung Jawab" : [i["name"] for i in data_unit],
+            "Kontak" : [i["kontak"] for i in data_unit],
+            "Total Trip (km)" : total_dis,
+            "Lama Trip (jam)" : total_time,
+            "Jumlah Penumpang" : [int(random.random() * 170) for i in data_unit],
+            # "Estimate Cost" : [3434234,23234234,23423423],
+            # "Actual Cost" : [43435345,12312,54645],
+            "Review" : [ "".join(['<i class="fa fa-star"></i>' for i in range(int(random.random() * 5))]) for i in data_unit],
+            # "Trip History" : ["safe","safe","safe"],
+            "Score" : [ int(random.random() * 10) for i in data_unit],
+            "Hubungi" : ['<div style="text-align: center"><a ><i class="fa fa-whatsapp" ></i><a/><div>' for i in data_unit]
+        }
+
+        data = pd.DataFrame(data= data)
+
+        table_columns = []
+        for n, i in enumerate(list(data.columns)):
+            if n == 0:
+                table_columns.append(
+                    {"title" : i, "className" : "details-control"}
+                )
+            elif n == 9:
+                table_columns.append(
+                    {"title" : i,  "className" : "call-wa"}
+                )
+            else:
+                table_columns.append(
+                    {"title" : i}
+                )
+
+        
+        output = {}
+        output["value"] = data.values.tolist()
+        output["columns"] = table_columns
+        output["table"] = f'<div style = ""><table id="mytable"  class="table  table-hover"  style="width : 100%"></table></div>'                                                                 
+        output["id"] = f"#mytable"
+        output["unit"] = [{
+            "id": i["id"],
+            "trip" : int(total_dis[n]),
+            "name" : i["id_user"],
+            "lat" : i["current_latitude"],
+            "long" : i["current_longitude"],
+            "dir" : i["current_directions"],
+            "speed" : i["current_speed"],
+            } for n,i in enumerate(data_unit)]
+    return output
+
+
+def create_point(lon, lat, text,color):
+    output= {
+        'type': 'Feature',
+        'properties': {
+            'description': text,
+            "ethnicity": color,
+            # 'icon': 'theatre'
+        },
+        'geometry': {
+            'type'          : 'Point',
+            'coordinates'   : [lon, lat]
+        }
+    }
+    return output
+
+def get_unit_data_history():
+    data = list(DataSensor.objects.all().dates("time", 'month', order='DESC'))
+    if len(data) > 0:
+        date = data[0]
+        month = date.month
+        year = date.year
+        day = date.day
+        data = pd.DataFrame(list(DataSensor.objects.filter(time__iso_year=year).filter(time__month=month).values("unit_id", "accuracy", "latitude", "longitude", "speed","directions","time")))
+        list_id = data["unit_id"].unique()
+        output = {}
+
+        for i in list_id:
+            output[i] = {
+                'type' : 'geojson',
+                'data' : {
+                    'type': 'FeatureCollection',
+                    'features': []
+                }
+            }
+            for j in data[data["unit_id"] == i].to_dict("report"):
+                output[i]['data']['features'].append(
+                    create_point(j["longitude"], j["latitude"], j["time"].strftime("%m/%d/%Y, %H:%M:%S"),"red")
+                )
+        
+        return output
+
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+from matplotlib import cm
+
+class MplColorHelper:
+    def __init__(self, cmap_name, start_val, stop_val):
+        self.cmap_name = cmap_name
+        self.cmap = plt.get_cmap(cmap_name)
+        self.norm = mpl.colors.Normalize(vmin=start_val, vmax=stop_val)
+        self.scalarMap = cm.ScalarMappable(norm=self.norm, cmap=self.cmap)
+
+    def get_rgb(self, val):
+        return self.scalarMap.to_rgba(val)
+
+    def get_hex(self, val):
+        r,g,b,a =  self.scalarMap.to_rgba(val)
+        return mpl.colors.to_hex([r,g,b,a], keep_alpha=False)
 
 
