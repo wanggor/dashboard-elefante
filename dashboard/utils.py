@@ -517,16 +517,18 @@ def extract_data(data, mode):
 
     #Get Plant List from data base
     plant_list = pd.DataFrame(list(Plant.objects.all().values()))
-    plant_list = plant_list.rename(columns = {"id":'ID','nama': 'Nama Plant', "kode":'Kode Plant', "departement":'Nama Departemen','perusahaan':'Perusahaan', 'kode pos':'Kode Pos', "lokasi":'Lokasi'})
-    plant_convert = plant_list[["Kode Plant", "Nama Plant"]].set_index("Kode Plant").to_dict()["Nama Plant"]
-    plant_dept = plant_list[["Kode Plant", "Nama Departemen"]].set_index("Kode Plant").to_dict()["Nama Departemen"]
+    if list(plant_list) != []:
+        plant_list = plant_list.rename(columns = {"id":'ID','nama': 'Nama Plant', "kode":'Kode Plant', "departement":'Nama Departemen','perusahaan':'Perusahaan', 'kode pos':'Kode Pos', "lokasi":'Lokasi'})
+        plant_convert = plant_list[["Kode Plant", "Nama Plant"]].set_index("Kode Plant").to_dict()["Nama Plant"]
+        plant_dept = plant_list[["Kode Plant", "Nama Departemen"]].set_index("Kode Plant").to_dict()["Nama Departemen"]
 
 
     #Get Material list from database
     materail_list = pd.DataFrame(list(Material.objects.all().values()))
-    material_list2 = materail_list[['kategori',"nama_kelompok",'kode']].set_index('kode').to_dict()['nama_kelompok']
-    material_list1 = materail_list[['kategori',"nama_kelompok",'kode']].set_index('kode').to_dict()['kategori']
-    
+    if list(materail_list) != []:
+        material_list2 = materail_list[['kategori',"nama_kelompok",'kode']].set_index('kode').to_dict()['nama_kelompok']
+        material_list1 = materail_list[['kategori',"nama_kelompok",'kode']].set_index('kode').to_dict()['kategori']
+        
     context = {}
     data = data.drop(['id'], axis=1)
     data = data.drop(['last_updated'], axis=1)

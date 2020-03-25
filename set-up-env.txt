@@ -1,0 +1,37 @@
+1. adduser wanggor
+2. usermod -aG sudo wanggor
+3. su - wanggor
+
+4. sudo apt-get update
+5. sudo apt-get install python3-pip python3-dev libpq-dev postgresql postgresql-contrib nginx
+
+6.sudo -u postgres psql
+7.CREATE DATABASE petrodatabase;
+8. CREATE USER elefante WITH PASSWORD 'Elefante.123';
+
+9. ALTER ROLE elefante SET client_encoding TO 'utf8';
+10. ALTER ROLE elefante SET default_transaction_isolation TO 'read committed';
+11. ALTER ROLE elefante SET timezone TO 'UTC';
+12. GRANT ALL PRIVILEGES ON DATABASE petrodatabase TO elefante;
+13. \q
+
+14. sudo -H pip3 install --upgrade pip
+15. sudo -H pip3 install virtualenv
+
+16. mkdir ~/myproject
+17. cd ~/myproject
+18. virtualenv myprojectenv
+19. source myprojectenv/bin/activate
+20. pip install django gunicorn psycopg2
+21. pip install numpy pandas django-widget-tweaks xlrd
+
+22. git clone https://github.com/wanggor/myDashboard.git
+23. cd myDashboard
+24. python manage.py makemigrations
+25. python manage.py migrate
+26. python manage.py createsuperuser
+27. python manage.py collectstatic
+
+# running without nginx
+28. sudo ufw allow 8000
+29. python manage.py runserver 0.0.0.0:8000
