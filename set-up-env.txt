@@ -1,3 +1,5 @@
+ssh 192.168.1.164 -l elefante  
+
 1. adduser wanggor
 2. usermod -aG sudo wanggor
 3. su - wanggor
@@ -6,13 +8,13 @@
 5. sudo apt-get install python3-pip python3-dev libpq-dev postgresql postgresql-contrib nginx
 
 6.sudo -u postgres psql
-7.CREATE DATABASE petrodatabase;
+7.CREATE DATABASE elefantedatabase;
 8. CREATE USER elefante WITH PASSWORD 'Elefante.123';
 
 9. ALTER ROLE elefante SET client_encoding TO 'utf8';
 10. ALTER ROLE elefante SET default_transaction_isolation TO 'read committed';
 11. ALTER ROLE elefante SET timezone TO 'UTC';
-12. GRANT ALL PRIVILEGES ON DATABASE petrodatabase TO elefante;
+12. GRANT ALL PRIVILEGES ON DATABASE elefante TO elefante;
 13. \q
 
 14. sudo -H pip3 install --upgrade pip
