@@ -1,0 +1,46 @@
+.table tr th {
+    border: thin solid #ddd !important;
+    white-space: nowrap;
+    background-color: #1ab394;
+    color: white;
+}
+.table tr td {
+    border: thin solid #ddd ;
+    border-top: 0px ;
+    white-space: nowrap;
+    text-align: left;
+    color: #888;
+}
+
+div.dataTables_wrapper {
+    width: 100%;
+    margin: 0 auto;
+    
+}
+
+.dataTables_paginate {
+    margin-top: 15px !important;
+}
+.table{
+    margin-bottom: 10px !important;
+}
+
+.dataTables_scroll{
+    /* border: 1px solid; */
+    border-left: thin solid #ddd;
+    border-right: thin solid #ddd;
+}
+
+.list-table tr td{
+    border: 0 ;
+    white-space: nowrap;
+    text-align: left;
+    color: #888;
+    padding-right: 10px;
+}
+
+
+.filter-item{
+    cursor: pointer;
+}
+

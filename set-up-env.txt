@@ -14,7 +14,7 @@ ssh 192.168.1.164 -l elefante
 9. ALTER ROLE elefante SET client_encoding TO 'utf8';
 10. ALTER ROLE elefante SET default_transaction_isolation TO 'read committed';
 11. ALTER ROLE elefante SET timezone TO 'UTC';
-12. GRANT ALL PRIVILEGES ON DATABASE elefante TO elefante;
+12. GRANT ALL PRIVILEGES ON DATABASE elefantedatabase TO elefante;
 13. \q
 
 14. sudo -H pip3 install --upgrade pip
@@ -25,9 +25,9 @@ ssh 192.168.1.164 -l elefante
 18. virtualenv myprojectenv
 19. source myprojectenv/bin/activate
 20. pip install django gunicorn psycopg2
-21. pip install numpy pandas django-widget-tweaks xlrd
+21. pip install numpy pandas django-widget-tweaks xlrd matplotlib
 
-22. git clone https://github.com/wanggor/myDashboard.git
+22. git clone https:/`/github.com/wanggor/dashboard-elefante.git
 23. cd myDashboard
 24. python manage.py makemigrations
 25. python manage.py migrate
