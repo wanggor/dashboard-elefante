@@ -25,7 +25,7 @@ SECRET_KEY = '^d3oml7y527u$8xof#hd@)i41k8hltgwn%i4783$jqy@s#y+d1'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["192.168.1.164"]
+ALLOWED_HOSTS = ["127.0.0.1","192.168.1.164","efante.ip-dynamic.com"]
 # ALLOWED_HOSTS = ["134.122.117.16"]
 
 
@@ -80,23 +80,23 @@ WSGI_APPLICATION = 'myDashboard.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'elefantedatabase',
-        'USER': 'elefante',
-        'PASSWORD': 'Elefante.123',
-        'HOST': 'localhost',
-        'PORT': '',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'elefantedatabase',
+#         'USER': 'elefante',
+#         'PASSWORD': 'Elefante.123',
+#         'HOST': 'localhost',
+#         'PORT': '',
+#     }
+# }
 
 
 # Password validation

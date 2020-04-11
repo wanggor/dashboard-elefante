@@ -49,10 +49,10 @@ Description=gunicorn daemon
 After=network.target
 
 [Service]
-User=wanggor
+User=elefante
 Group=www-data
-WorkingDirectory=/home/wanggor/myproject/myDashboard
-ExecStart=/home/wanggor/myproject/myprojectenv/bin/gunicorn --access-logfile - --workers 3 --bind unix:/home/wanggor/myproject/myDashboard/myDashboard.sock myDashboard.wsgi:application
+WorkingDirectory=/home/elefante/myproject/dashboard-elefante
+ExecStart=/home/elefante/myproject/myprojectenv/bin/gunicorn --access-logfile - --workers 3 --bind unix:/home/elefante/myproject/dashboard-elefante/myDashboard.sock myDashboard.wsgi:application
 
 [Install]
 WantedBy=multi-user.target
@@ -73,16 +73,16 @@ WantedBy=multi-user.target
 "
 server {
     listen 80;
-    server_name 134.122.117.16;
+    server_name 192.168.1.164;
 
     location = /favicon.ico { access_log off; log_not_found off; }
     location /static/ {
-        root /home/wanggor/myproject/myDashboard/;
+        root /home/elefante/myproject/dashboard-elefante/;
     }
 
     location / {
         include proxy_params;
-        proxy_pass http://unix:/home/wanggor/myproject/myDashboard/myDashboard.sock;
+        proxy_pass http://unix:/home/elefante/myproject/dashboard-elefante/myDashboard.sock;
     }
 }
 
